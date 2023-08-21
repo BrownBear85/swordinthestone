@@ -21,6 +21,8 @@ import com.bonker.swordinthestone.util.Color;
 import com.bonker.swordinthestone.util.DoubleJumpEvent;
 import com.bonker.swordinthestone.util.Util;
 import com.mojang.logging.LogUtils;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -35,6 +37,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
@@ -95,11 +98,11 @@ public class CommonEvents {
                 if (player.getDeltaMovement().lengthSqr() < 0.01) dashTicks = 0;
 
                 if (event.side == LogicalSide.SERVER && dashTicks > 0) {
-                    HeightAreaEffectCloud.createToxicDashCloud(player.level(), player, player.getX(), player.getY() - 0.5, player.getZ());
+                    HeightAreaEffectCloud.createToxicDashCloud(player.level, player, player.getX(), player.getY() - 0.5, player.getZ());
                 }
 
                 if (dashTicks > 0 && event.side == LogicalSide.CLIENT) {
-                    player.level().getEntities(player, player.getBoundingBox().inflate(0.5)).forEach(entity -> {
+                    player.level.getEntities(player, player.getBoundingBox().inflate(0.5)).forEach(entity -> {
                         if (entity instanceof LivingEntity && !cap.isDashed(entity)) {
                             cap.addToDashed(entity);
                             SSNetworking.sendToServer(new ServerboundDashAttackPacket(entity.getId()));
@@ -110,7 +113,7 @@ public class CommonEvents {
                 cap.setDashTicks(dashTicks);
             });
 
-            if (player.onGround()) {
+            if (player.isOnGround()) {
                 player.getCapability(ExtraJumpsCapability.JUMPS).ifPresent(IExtraJumpsCapability::resetExtraJumps);
             }
         }
@@ -118,7 +121,7 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onLivingDeath(final LivingDeathEvent event) {
             if (event.getEntity() instanceof ServerPlayer player) {
-                Util.getOwnedProjectiles(player, EnderRift.class, player.serverLevel()).forEach(Entity::discard);
+                Util.getOwnedProjectiles(player, EnderRift.class, player.getLevel()).forEach(Entity::discard);
             }
         }
 
@@ -129,9 +132,9 @@ public class CommonEvents {
                 if (distance >= 3) {
                     if (distance <= 7) event.getEntity().playSound(SoundEvents.GENERIC_SMALL_FALL, 0.5F, 1.0F);
 
-                    event.getEntity().playSound(SSSounds.LAND.get(), 0.3F, 0.6F + event.getEntity().level().random.nextFloat() * 0.8F);
+                    event.getEntity().playSound(SSSounds.LAND.get(), 0.3F, 0.6F + event.getEntity().level.random.nextFloat() * 0.8F);
 
-                    if (event.getEntity().level() instanceof ServerLevel serverLevel) {
+                    if (event.getEntity().level instanceof ServerLevel serverLevel) {
                         serverLevel.sendParticles(SSParticles.AIR.get(), event.getEntity().getX(), event.getEntity().getY() + 0.1, event.getEntity().getZ(), 20, 0.5, 0.1, 0.5, 0.05);
                     }
                 }
@@ -144,9 +147,9 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onDoubleJump(final DoubleJumpEvent event) {
             Vec3 pos = event.getEntity().position();
-            ServerLevel level = (ServerLevel) event.getEntity().level();
+            ServerLevel level = (ServerLevel) event.getEntity().level;
             level.sendParticles(SSParticles.AIR.get(), pos.x, pos.y, pos.z, 20, 0.5, 0.1, 0.5, 0.05);
-            level.playSound(null, pos.x, pos.y, pos.z, SSSounds.JUMP.get(), SoundSource.PLAYERS, 0.7F, 0.8F + event.getEntity().level().random.nextFloat() * 0.4F);
+            level.playSound(null, pos.x, pos.y, pos.z, SSSounds.JUMP.get(), SoundSource.PLAYERS, 0.7F, 0.8F + event.getEntity().level.random.nextFloat() * 0.4F);
         }
 
         @SubscribeEvent
@@ -189,6 +192,24 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onAttributeModification(final EntityAttributeModificationEvent event) {
             event.add(EntityType.PLAYER, SSAttributes.JUMPS.get(), 0);
+        }
+
+        @SubscribeEvent
+        public static void onCreateCreativeModeTab(final CreativeModeTabEvent.Register event) {
+            event.registerCreativeModeTab(new ResourceLocation(SwordInTheStone.MODID, "unique_swords"), (builder) -> builder
+                    .title(Component.translatable("item_group.swordinthestone.swords"))
+                    .icon(() -> new ItemStack(SSItems.FOREST_SWORD.get()))
+                    .displayItems(((params, items) -> {
+                        for (RegistryObject<Item> item : SSItems.ITEMS.getEntries()) {
+                            if (item.get() instanceof UniqueSwordItem sword) {
+                                for (RegistryObject<SwordAbility> ability : SwordAbilities.SWORD_ABILITIES.getEntries()) {
+                                    ItemStack stack = new ItemStack(sword);
+                                    stack.getOrCreateTag().putString("ability", ability.getId().toString());
+                                    items.accept(stack);
+                                }
+                            }
+                        }
+                    })));
         }
     }
 }

@@ -27,7 +27,7 @@ public class SpellFireballRenderer extends ThrownItemRenderer<SpellFireball> {
         pMatrixStack.scale(scale, scale, scale);
         pMatrixStack.mulPose(entityRenderDispatcher.cameraOrientation());
         pMatrixStack.mulPose(Axis.YP.rotationDegrees(180.0F));
-        itemRenderer.renderStatic(pEntity.getItem(), ItemDisplayContext.NONE, pPackedLight, OverlayTexture.NO_OVERLAY, pMatrixStack, pBuffer, pEntity.level(), pEntity.getId());
+        itemRenderer.renderStatic(pEntity.getItem(), ItemDisplayContext.NONE, pPackedLight, OverlayTexture.NO_OVERLAY, pMatrixStack, pBuffer, pEntity.level, pEntity.getId());
         pMatrixStack.popPose();
     }
 

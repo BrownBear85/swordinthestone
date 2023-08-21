@@ -44,7 +44,7 @@ public class ClientEvents {
             if (player != null &&
                     event.getAction() == GLFW.GLFW_PRESS &&
                     event.getKey() == minecraft.options.keyJump.getKey().getValue() &&
-                    !player.onGround() && !player.isFallFlying()) {
+                    !player.isOnGround() && !player.isFallFlying()) {
                 SSNetworking.sendToServer(new ServerboundExtraJumpPacket(player.input.left, player.input.right, player.input.up, player.input.down));
             }
         }

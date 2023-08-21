@@ -66,10 +66,10 @@ public class SpellFireball extends Fireball {
     @Override
     protected void onHit(HitResult pResult) {
         super.onHit(pResult);
-        if (!level().isClientSide) {
-            level().explode(this, getX(), getY() + 0.5, getZ(), getPower(), true, Level.ExplosionInteraction.BLOCK);
+        if (!level.isClientSide) {
+            level.explode(this, getX(), getY() + 0.5, getZ(), getPower(), true, Level.ExplosionInteraction.BLOCK);
             double radius = Math.min(1, getPower());
-            ((ServerLevel) level()).sendParticles(SSParticles.FIRE.get(), getX(), getY(), getZ(), Mth.floor(radius * 25F), radius, radius, radius, 0F);
+            ((ServerLevel) level).sendParticles(SSParticles.FIRE.get(), getX(), getY(), getZ(), Mth.floor(radius * 25F), radius, radius, radius, 0F);
             discard();
         }
     }
@@ -77,7 +77,7 @@ public class SpellFireball extends Fireball {
     @Override
     protected void onHitEntity(EntityHitResult pResult) {
         super.onHitEntity(pResult);
-        if (!level().isClientSide) {
+        if (!level.isClientSide) {
             Entity entity = pResult.getEntity();
             if (entity instanceof EnderMan) {
                 return;

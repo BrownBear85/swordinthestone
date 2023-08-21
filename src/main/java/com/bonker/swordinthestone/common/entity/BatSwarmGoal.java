@@ -42,7 +42,7 @@ public class BatSwarmGoal extends Goal {
 
     @Override
     public void stop() {
-        if (bat.level() instanceof ServerLevel serverLevel) {
+        if (bat.level instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.SMOKE, bat.getX(), bat.getY(), bat.getZ(), 10, 0.2, 0.2, 0.2, 0.1);
             bat.discard();
         }
@@ -61,10 +61,10 @@ public class BatSwarmGoal extends Goal {
         bat.setXRot(swarm.xRot);
         bat.setYRot(swarm.yRot);
 
-        bat.level().getEntities(bat, bat.getBoundingBox().inflate(0.5), entity -> !(entity instanceof Bat)).forEach(entity -> {
+        bat.level.getEntities(bat, bat.getBoundingBox().inflate(0.5), entity -> !(entity instanceof Bat)).forEach(entity -> {
             if (entity != swarm.owner && entity instanceof LivingEntity livingEntity) {
                 livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100));
-                entity.hurt(livingEntity.level().damageSources().mobAttack(bat), 2F);
+                entity.hurt(livingEntity.level.damageSources().mobAttack(bat), 2F);
                 entity.setDeltaMovement(swarm.hitDelta);
                 if (entity instanceof ServerPlayer player) {
                     SSNetworking.sendToPlayer(new ClientboundSyncDeltaPacket(entity.getDeltaMovement()), player);
@@ -77,7 +77,7 @@ public class BatSwarmGoal extends Goal {
         bat.setDeltaMovement(swarm.delta);
         bat.move(MoverType.SELF, bat.getDeltaMovement());
 
-        if (bat.level() instanceof ServerLevel serverLevel) {
+        if (bat.level instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.ASH, bat.getX(), bat.getY(), bat.getZ(), 1, 0, 0, 0, 0);
 
             if ((ticks > 2 && !isMoving()) || ticks > lifetime) {

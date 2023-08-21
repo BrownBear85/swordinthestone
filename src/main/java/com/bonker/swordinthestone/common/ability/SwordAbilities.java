@@ -95,7 +95,7 @@ public class SwordAbilities {
             () -> new SwordAbilityBuilder(0x52c539)
                     .onUse((level, player, usedHand) -> {
                         ItemStack stack = player.getItemInHand(usedHand);
-                        if (!(player.onGround() || player.isUnderWater())) return InteractionResultHolder.pass(stack);
+                        if (!(player.isOnGround() || player.isUnderWater())) return InteractionResultHolder.pass(stack);
                         if (AbilityUtil.isOnCooldown(stack, level, TOXIC_DASH_COOLDOWN)) return InteractionResultHolder.fail(stack);
 
                         level.playSound(player, player.getX(), player.getY(), player.getZ(), SSSounds.DASH.get(), SoundSource.PLAYERS, 2.0F, 0.8F + level.random.nextFloat() * 0.4F);

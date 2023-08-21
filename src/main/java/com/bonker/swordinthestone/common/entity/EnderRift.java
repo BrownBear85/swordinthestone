@@ -47,7 +47,7 @@ public class EnderRift extends Projectile {
             teleport();
         }
 
-        if (level().isClientSide) {
+        if (level.isClientSide) {
             addParticles(this, 3, 0);
             entities.forEach(e -> addParticles(e, 1, e.getBbHeight()));
         }
@@ -55,16 +55,16 @@ public class EnderRift extends Projectile {
         if (!(getOwner() instanceof Player owner)) return;
 
         if (getEntityData().get(DATA_CONTROLLING)) {
-            if (level().isClientSide) ClientUtil.controlEnderRift(this, owner);
+            if (level.isClientSide) ClientUtil.controlEnderRift(this, owner);
         } else {
             move(MoverType.SELF, getDeltaMovement());
 
-            if (age % 5 == 0 && !level().isClientSide)
+            if (age % 5 == 0 && !level.isClientSide)
                 SSNetworking.sendToTrackingClients(new ClientboundEnderRiftPacket(getId(), position(), getDeltaMovement()), this);
         }
 
         if (age % 2 == 0) {
-            entities.addAll(level().getEntities(this, getBoundingBox().inflate(0.3)));
+            entities.addAll(level.getEntities(this, getBoundingBox().inflate(0.3)));
         }
     }
 
@@ -90,7 +90,7 @@ public class EnderRift extends Projectile {
 
     private static void addParticles(Entity entity, int count, double offset) {
         for (int i = 0; i < count; i++) {
-            entity.level().addParticle(ParticleTypes.WITCH, entity.getX(), entity.getY() + offset, entity.getZ(), 0, 0, 0);
+            entity.level.addParticle(ParticleTypes.WITCH, entity.getX(), entity.getY() + offset, entity.getZ(), 0, 0, 0);
         }
     }
 

@@ -53,7 +53,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
 
         boolean waiting = isWaiting();
         float radius = getRadius();
-        if (level().isClientSide) {
+        if (level.isClientSide) {
             if (waiting) {
                 return;
             }
@@ -82,7 +82,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                     zd = (0.5D - random.nextDouble()) * 0.15D;
                 }
 
-                level().addAlwaysVisibleParticle(particle, x, y, z, xd, yd, zd);
+                level.addAlwaysVisibleParticle(particle, x, y, z, xd, yd, zd);
             }
         } else {
             if (tickCount >= waitTime + duration) {
@@ -121,7 +121,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                 if (effects.isEmpty()) {
                     victims.clear();
                 } else {
-                    List<LivingEntity> entities = level().getEntitiesOfClass(LivingEntity.class, getBoundingBox());
+                    List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, getBoundingBox());
                     if (!entities.isEmpty()) {
                         for (LivingEntity entity : entities) {
                             if (!victims.containsKey(entity) && entity.isAffectedByPotions()) {

@@ -38,7 +38,7 @@ public class ClientboundEnderRiftPacket {
     public void handle() {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
-        ClientLevel level = (ClientLevel) player.level();
+        ClientLevel level = (ClientLevel) player.level;
 
         Entity entity = level.getEntity(entityId);
         if (entity == null || entity.getType() != SSEntityTypes.ENDER_RIFT.get()) return;

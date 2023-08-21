@@ -33,13 +33,13 @@ public class ServerboundDashAttackPacket {
         if (player == null) return;
         Optional<IDashCapability> cap = player.getCapability(DashCapability.DASH).resolve();
         if (cap.isEmpty() || cap.get().getDashTicks() <= 0) return;
-        ServerLevel level = player.serverLevel();
+        ServerLevel level = player.getLevel();
         Entity entity = level.getEntity(entityId);
         if (entity == null) return;
         if (player.distanceTo(entity) > player.getAttributeValue(ForgeMod.ENTITY_REACH.get()) * 2) return;
         player.attackStrengthTicker = 100;
         player.attack(entity);
         player.resetAttackStrengthTicker();
-        HeightAreaEffectCloud.createToxicDashCloud(player.level(), player, player.getX(), player.getY() - 0.5, player.getZ());
+        HeightAreaEffectCloud.createToxicDashCloud(player.level, player, player.getX(), player.getY() - 0.5, player.getZ());
     }
 }
