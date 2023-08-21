@@ -126,7 +126,7 @@ public class SwordAbilities {
 
     // Ender Rift
     public static final int ENDER_RIFT_DURATION = 60;
-    public static final int ENDER_RIFT_COOLDOWN = 200; // must be more than the duration
+    public static final int ENDER_RIFT_COOLDOWN = 200 + ENDER_RIFT_DURATION; // must be more than the duration
     public static final RegistryObject<SwordAbility> ENDER_RIFT = register("ender_rift",
             () -> new SwordAbilityBuilder(0xe434ff)
                     .onUse((level, player, usedHand) -> {
@@ -140,11 +140,10 @@ public class SwordAbilities {
 
                         level.playSound(player, player.getX(), player.getY(), player.getZ(), SSSounds.RIFT.get(), SoundSource.PLAYERS, 1.0F, 0.8F + level.random.nextFloat() * 0.4F);
 
+                        AbilityUtil.setOnCooldown(stack, level, ENDER_RIFT_COOLDOWN);
                         return InteractionResultHolder.pass(stack);
                     })
                     .onReleaseUsing((stack, level, entity, ticks) -> {
-                        if (AbilityUtil.isOnCooldown(stack, level, ENDER_RIFT_COOLDOWN)) return;
-
                         if (!level.isClientSide) {
                             if (ENDER_RIFT_DURATION - ticks > 4) {
                                 Util.getOwnedProjectiles(entity, EnderRift.class, (ServerLevel) level).forEach(EnderRift::teleport);
@@ -152,8 +151,6 @@ public class SwordAbilities {
                                 Util.getOwnedProjectiles(entity, EnderRift.class, (ServerLevel) level).forEach(e -> e.getEntityData().set(EnderRift.DATA_CONTROLLING, false));
                             }
                         }
-
-                        AbilityUtil.setOnCooldown(stack, level, ENDER_RIFT_COOLDOWN);
                     })
                     .useDuration(ENDER_RIFT_DURATION)
                     .inventoryTick((stack, level, entity, slotId, isSelected) -> AbilityUtil.updateCooldown(stack, level, ENDER_RIFT_COOLDOWN))
@@ -222,7 +219,7 @@ public class SwordAbilities {
                         AbilityUtil.sendAlchemistMsg(player, effectInst, false);
                     }
 
-                    level.levelEvent(LevelEvent.PARTICLES_SPELL_POTION_SPLASH, BlockPos.containing(victim.position()), PotionUtils.getColor(potion));
+                    level.levelEvent(LevelEvent.PARTICLES_SPELL_POTION_SPLASH, new BlockPos(victim.position()), PotionUtils.getColor(potion));
                 }
             })
             .onKill((level, attacker, victim) -> {
@@ -235,7 +232,7 @@ public class SwordAbilities {
                         AbilityUtil.sendAlchemistMsg(player, effectInst, true);
                     }
 
-                    level.levelEvent(LevelEvent.PARTICLES_SPELL_POTION_SPLASH, BlockPos.containing(attacker.position()), PotionUtils.getColor(potion));
+                    level.levelEvent(LevelEvent.PARTICLES_SPELL_POTION_SPLASH, new BlockPos(attacker.position()), PotionUtils.getColor(potion));
                 }
             })
             .build());

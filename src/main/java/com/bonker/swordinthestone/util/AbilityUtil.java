@@ -71,7 +71,7 @@ public class AbilityUtil {
             component = Component.translatable("potion.withAmplifier", component, Component.translatable("potion.potency." + effectInst.getAmplifier()));
         }
 
-        if (!effectInst.endsWithin(20)) {
+        if (effectInst.getDuration() > 20) {
             component = Component.translatable("potion.withDuration", component, Component.literal(effectInst.getDuration() / 20 + "s"));
         }
 

@@ -9,6 +9,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -83,7 +84,7 @@ public class SpellFireball extends Fireball {
                 return;
             }
             Entity owner = getOwner();
-            entity.hurt(damageSources().fireball(this, owner), 6.0F * getPower());
+            entity.hurt(DamageSource.fireball(this, owner), 6.0F * getPower());
             if (owner instanceof LivingEntity) {
                 doEnchantDamageEffects((LivingEntity) owner, entity);
             }

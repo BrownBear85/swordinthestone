@@ -5,6 +5,7 @@ import com.bonker.swordinthestone.common.networking.SSNetworking;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -64,7 +65,7 @@ public class BatSwarmGoal extends Goal {
         bat.level.getEntities(bat, bat.getBoundingBox().inflate(0.5), entity -> !(entity instanceof Bat)).forEach(entity -> {
             if (entity != swarm.owner && entity instanceof LivingEntity livingEntity) {
                 livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100));
-                entity.hurt(livingEntity.level.damageSources().mobAttack(bat), 2F);
+                entity.hurt(DamageSource.mobAttack(bat), 2F);
                 entity.setDeltaMovement(swarm.hitDelta);
                 if (entity instanceof ServerPlayer player) {
                     SSNetworking.sendToPlayer(new ClientboundSyncDeltaPacket(entity.getDeltaMovement()), player);

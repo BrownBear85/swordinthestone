@@ -3,10 +3,10 @@ package com.bonker.swordinthestone.datagen;
 import com.bonker.swordinthestone.SwordInTheStone;
 import com.bonker.swordinthestone.common.item.SSItems;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.client.model.generators.ItemModelBuilder;
@@ -35,13 +35,13 @@ public class SSItemModelProvider extends ItemModelProvider {
     @Override
     protected void registerModels() {
         getBuilder("swordinthestone:item/unique_sword").parent(new ModelFile.UncheckedModelFile("item/handheld")).transforms()
-                .transform(ItemDisplayContext.GROUND)                 .rotation(0, 0, -135).translation(0, 3, 0)           .scale(1F, 1F, 1F)      .end()
-                .transform(ItemDisplayContext.FIXED)                  .rotation(0, 180, 180)                               .scale(1.3F, 1.3F, 1.3F).end()
-                .transform(ItemDisplayContext.HEAD)                   .rotation(0, 180, 0) .translation(0, 13, 7)          .scale(1.3F, 1.3F, 1.3F).end()
-                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND).rotation(0, -90, 55).translation(0F, 4.0F, 0.5F)    .scale(1.1F)            .end()
-                .transform(ItemDisplayContext.THIRD_PERSON_LEFT_HAND) .rotation(0, 90, -55).translation(0F, 4.0F, 0.5F)    .scale(1.1F)            .end()
-                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND).rotation(0, -90, 25).translation(1.13F, 3.2F, 1.13F).scale(0.88F)           .end()
-                .transform(ItemDisplayContext.FIRST_PERSON_LEFT_HAND) .rotation(0, 90, -25).translation(1.13F, 3.2F, 1.13F).scale(0.88F)           .end();
+                .transform(ItemTransforms.TransformType.GROUND)                 .rotation(0, 0, -135).translation(0, 3, 0)           .scale(1F, 1F, 1F)      .end()
+                .transform(ItemTransforms.TransformType.FIXED)                  .rotation(0, 180, 180)                               .scale(1.3F, 1.3F, 1.3F).end()
+                .transform(ItemTransforms.TransformType.HEAD)                   .rotation(0, 180, 0) .translation(0, 13, 7)          .scale(1.3F, 1.3F, 1.3F).end()
+                .transform(ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND).rotation(0, -90, 55).translation(0F, 4.0F, 0.5F)    .scale(1.1F)            .end()
+                .transform(ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND) .rotation(0, 90, -55).translation(0F, 4.0F, 0.5F)    .scale(1.1F)            .end()
+                .transform(ItemTransforms.TransformType.FIRST_PERSON_RIGHT_HAND).rotation(0, -90, 25).translation(1.13F, 3.2F, 1.13F).scale(0.88F)           .end()
+                .transform(ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND) .rotation(0, 90, -25).translation(1.13F, 3.2F, 1.13F).scale(0.88F)           .end();
 
         uniqueSwordVariant(SSItems.FOREST_SWORD.get(), "forest_sword", "Sword of the Forest");
         uniqueSwordVariant(SSItems.DESERT_SWORD.get(), "desert_sword", "Sword of the Desert");

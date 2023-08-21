@@ -149,11 +149,6 @@ public class UniqueSwordItem extends SwordItem {
     }
 
     @Override
-    public void onStopUsing(ItemStack stack, LivingEntity entity, int useTime) {
-        AbilityUtil.getSwordAbility(stack).releaseUsing(stack, entity.level, entity, useTime);
-    }
-
-    @Override
     public int getUseDuration(ItemStack pStack) {
         return AbilityUtil.getSwordAbility(pStack).getUseDuration();
     }

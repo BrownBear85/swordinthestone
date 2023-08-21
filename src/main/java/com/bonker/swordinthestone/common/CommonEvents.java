@@ -28,7 +28,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -72,7 +71,7 @@ public class CommonEvents {
 
             if (event.getEntity() instanceof ServerPlayer player) {
                 player.getCapability(DashCapability.DASH).ifPresent(cap -> {
-                    if (DashCapability.getTicks(player) > 0 && event.getSource().is(DamageTypes.MOB_ATTACK)) event.setCanceled(true);
+                    if (DashCapability.getTicks(player) > 0 && event.getSource().msgId.equals("mob")) event.setCanceled(true);
                 });
             }
         }
@@ -82,6 +81,13 @@ public class CommonEvents {
             if (event.getObject() instanceof Player) {
                 event.addCapability(DashCapability.NAME, DashCapability.createProvider());
                 event.addCapability(ExtraJumpsCapability.NAME, new ExtraJumpsProvider());
+            }
+        }
+
+        @SubscribeEvent
+        public static void onLivingEntityStopUsing(final LivingEntityUseItemEvent.Stop event) {
+            if (event.getItem().getItem() instanceof UniqueSwordItem) {
+                AbilityUtil.getSwordAbility(event.getItem()).releaseUsing(event.getItem(), event.getEntity().level, event.getEntity(), event.getDuration());
             }
         }
 
@@ -199,17 +205,17 @@ public class CommonEvents {
             event.registerCreativeModeTab(new ResourceLocation(SwordInTheStone.MODID, "unique_swords"), (builder) -> builder
                     .title(Component.translatable("item_group.swordinthestone.swords"))
                     .icon(() -> new ItemStack(SSItems.FOREST_SWORD.get()))
-                    .displayItems(((params, items) -> {
+                    .displayItems((pEnabledFeatures, pOutput, pDisplayOperatorCreativeTab) -> {
                         for (RegistryObject<Item> item : SSItems.ITEMS.getEntries()) {
                             if (item.get() instanceof UniqueSwordItem sword) {
                                 for (RegistryObject<SwordAbility> ability : SwordAbilities.SWORD_ABILITIES.getEntries()) {
                                     ItemStack stack = new ItemStack(sword);
                                     stack.getOrCreateTag().putString("ability", ability.getId().toString());
-                                    items.accept(stack);
+                                    pOutput.accept(stack);
                                 }
                             }
                         }
-                    })));
+                    }));
         }
     }
 }

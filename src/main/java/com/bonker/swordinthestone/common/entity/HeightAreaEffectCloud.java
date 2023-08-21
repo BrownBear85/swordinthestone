@@ -114,7 +114,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                 List<MobEffectInstance> effects = Lists.newArrayList();
 
                 for (MobEffectInstance effect : potion.getEffects()) {
-                    effects.add(new MobEffectInstance(effect.getEffect(), effect.mapDuration(i -> i / 4), effect.getAmplifier(), effect.isAmbient(), effect.isVisible()));
+                    effects.add(new MobEffectInstance(effect.getEffect(), effect.getDuration() / 4, effect.getAmplifier(), effect.isAmbient(), effect.isVisible()));
                 }
 
                 effects.addAll(this.effects);

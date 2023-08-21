@@ -82,9 +82,9 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRegisterParticleProviders(final RegisterParticleProvidersEvent event) {
-            event.registerSpriteSet(SSParticles.HEAL.get(), HealParticle.Provider::new);
-            event.registerSpriteSet(SSParticles.FIRE.get(), FireParticle.Provider::new);
-            event.registerSpriteSet(SSParticles.AIR.get(), AirParticle.Provider::new);
+            event.register(SSParticles.HEAL.get(), HealParticle.Provider::new);
+            event.register(SSParticles.FIRE.get(), FireParticle.Provider::new);
+            event.register(SSParticles.AIR.get(), AirParticle.Provider::new);
         }
     }
 }

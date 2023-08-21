@@ -36,7 +36,7 @@ public class ServerboundDashAttackPacket {
         ServerLevel level = player.getLevel();
         Entity entity = level.getEntity(entityId);
         if (entity == null) return;
-        if (player.distanceTo(entity) > player.getAttributeValue(ForgeMod.ENTITY_REACH.get()) * 2) return;
+        if (player.distanceTo(entity) > player.getAttributeValue(ForgeMod.REACH_DISTANCE.get()) * 2) return;
         player.attackStrengthTicker = 100;
         player.attack(entity);
         player.resetAttackStrengthTicker();
