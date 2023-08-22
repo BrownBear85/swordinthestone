@@ -21,8 +21,6 @@ import com.bonker.swordinthestone.util.Color;
 import com.bonker.swordinthestone.util.DoubleJumpEvent;
 import com.bonker.swordinthestone.util.Util;
 import com.mojang.logging.LogUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -36,7 +34,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
@@ -198,24 +195,6 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onAttributeModification(final EntityAttributeModificationEvent event) {
             event.add(EntityType.PLAYER, SSAttributes.JUMPS.get(), 0);
-        }
-
-        @SubscribeEvent
-        public static void onCreateCreativeModeTab(final CreativeModeTabEvent.Register event) {
-            event.registerCreativeModeTab(new ResourceLocation(SwordInTheStone.MODID, "unique_swords"), (builder) -> builder
-                    .title(Component.translatable("item_group.swordinthestone.swords"))
-                    .icon(() -> new ItemStack(SSItems.FOREST_SWORD.get()))
-                    .displayItems((pEnabledFeatures, pOutput, pDisplayOperatorCreativeTab) -> {
-                        for (RegistryObject<Item> item : SSItems.ITEMS.getEntries()) {
-                            if (item.get() instanceof UniqueSwordItem sword) {
-                                for (RegistryObject<SwordAbility> ability : SwordAbilities.SWORD_ABILITIES.getEntries()) {
-                                    ItemStack stack = new ItemStack(sword);
-                                    stack.getOrCreateTag().putString("ability", ability.getId().toString());
-                                    pOutput.accept(stack);
-                                }
-                            }
-                        }
-                    }));
         }
     }
 }

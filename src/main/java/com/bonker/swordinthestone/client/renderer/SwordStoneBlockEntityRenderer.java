@@ -3,7 +3,7 @@ package com.bonker.swordinthestone.client.renderer;
 import com.bonker.swordinthestone.common.block.entity.SwordStoneMasterBlockEntity;
 import com.bonker.swordinthestone.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
@@ -58,11 +58,11 @@ public class SwordStoneBlockEntityRenderer implements BlockEntityRenderer<SwordS
         float tilt = direction * 3.5F * Mth.sin(animationTick) * entity.progress / (10 + animationTick * animationTick);
 
         poseStack.translate(entity.centerXOffset(), 1.6, entity.centerZOffset()); // center the item
-        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.wrapDegrees(yRot))); // spinning angle
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.wrapDegrees(yRot))); // spinning angle
         poseStack.translate(0, -0.7F, 0);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(tilt)); // shaking tilt
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(tilt)); // shaking tilt
         poseStack.translate(0, 0.7F, 0);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-45F)); // sword sits upright
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(-45F)); // sword sits upright
 
         itemRenderer.renderStatic(entity.getItem(), ItemTransforms.TransformType.FIXED, packedLight, packedOverlay, poseStack, bufferSource, 42);
     }

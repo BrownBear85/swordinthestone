@@ -2,6 +2,7 @@ package com.bonker.swordinthestone.common.entity;
 
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.google.common.collect.Lists;
+import com.mojang.math.Vector3f;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -20,7 +21,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class HeightAreaEffectCloud extends AreaEffectCloud {
-    private static final DustParticleOptions TOXIC_DASH_PARTICLE = new DustParticleOptions(Vec3.fromRGB24(SwordAbilities.TOXIC_DASH.get().getColor()).toVector3f(), 1.25F);
+    private static final DustParticleOptions TOXIC_DASH_PARTICLE = new DustParticleOptions(new Vector3f(Vec3.fromRGB24(SwordAbilities.TOXIC_DASH.get().getColor())), 1.25F);
     private static final EntityDataAccessor<Float> DATA_HEIGHT = SynchedEntityData.defineId(HeightAreaEffectCloud.class, EntityDataSerializers.FLOAT);
     private boolean ownerImmune = false;
 
