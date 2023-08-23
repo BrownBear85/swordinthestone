@@ -251,10 +251,11 @@ public class SwordAbilities {
                     BatSwarmGoal.BatSwarm swarm = new BatSwarmGoal.BatSwarm(player);
                     for (int i = 0; i < 15; i++) {
                         boolean isLeader = i == 0;
+                        Vec3 spawnPos = pos.add(Util.relativeVec(player.getRotationVector(), 0, (level.random.nextFloat() - 0.5) * 2 - 1, (level.random.nextFloat() - 0.5) * 2));
                         Bat bat = EntityType.BAT.spawn((ServerLevel) level, null, null, null,
-                                BlockPos.ZERO, MobSpawnType.COMMAND, false, false);
+                                new BlockPos(spawnPos), MobSpawnType.COMMAND, false, false);
                         if (bat != null) {
-                            bat.setPos(pos.add(Util.relativeVec(player.getRotationVector(), 0, (level.random.nextFloat() - 0.5) * 2 - 1, (level.random.nextFloat() - 0.5) * 2)));
+                            bat.setPos(spawnPos);
                             bat.setCustomName(new TranslatableComponent("ability.swordinthestone.bat_swarm.name", player.getDisplayName(),
                                     new TranslatableComponent(bat.getType().getDescriptionId())).withStyle(SwordAbilities.BAT_SWARM.get().getColorStyle()));
                             bat.goalSelector.addGoal(0, new BatSwarmGoal(bat, swarm, isLeader));
