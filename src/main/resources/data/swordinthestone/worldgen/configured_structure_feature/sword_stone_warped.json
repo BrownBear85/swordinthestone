@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:bastion_remnant",
+  "biomes": "#swordinthestone:has_structure/sword_stone_warped",
+  "adapt_noise": true,
+  "spawn_overrides": {},
+  "config": {
+    "start_pool": "swordinthestone:sword_stone_warped",
+    "size": 1
+  }
+}

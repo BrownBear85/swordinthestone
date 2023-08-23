@@ -24,8 +24,9 @@ import net.minecraft.world.item.Item;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -39,7 +40,7 @@ public class ClientEvents {
     @Mod.EventBusSubscriber(modid = SwordInTheStone.MODID, value = Dist.CLIENT)
     public static class ForgeBus {
         @SubscribeEvent
-        public static void onKeyInput(final InputEvent.Key event) {
+        public static void onKeyInput(final InputEvent.KeyInputEvent event) {
             LocalPlayer player = Minecraft.getInstance().player;
             if (player != null &&
                     event.getAction() == GLFW.GLFW_PRESS &&
@@ -68,23 +69,23 @@ public class ClientEvents {
         }
 
         @SubscribeEvent
-        public static void onRegisterAdditionalModels(final ModelEvent.RegisterAdditional event) {
+        public static void onRegisterAdditionalModels(final ModelRegistryEvent event) {
             for (ResourceLocation ability : SwordAbilities.SWORD_ABILITY_REGISTRY.get().getKeys()) {
-                event.register(new ResourceLocation(ability.getNamespace(), "item/ability/" + ability.getPath()));
+                ForgeModelBakery.addSpecialModel(new ResourceLocation(ability.getNamespace(), "item/ability/" + ability.getPath()));
             }
             for (RegistryObject<Item> regObj : SSItems.ITEMS.getEntries()) {
                 if (!(regObj.get() instanceof UniqueSwordItem)) continue;
                 ResourceLocation loc = ForgeRegistries.ITEMS.getKey(regObj.get());
                 if (loc == null) continue;
-                event.register(new ResourceLocation(loc.getNamespace(), "item/sword/" + loc.getPath()));
+                ForgeModelBakery.addSpecialModel(new ResourceLocation(loc.getNamespace(), "item/sword/" + loc.getPath()));
             }
         }
 
         @SubscribeEvent
-        public static void onRegisterParticleProviders(final RegisterParticleProvidersEvent event) {
-            event.register(SSParticles.HEAL.get(), HealParticle.Provider::new);
-            event.register(SSParticles.FIRE.get(), FireParticle.Provider::new);
-            event.register(SSParticles.AIR.get(), AirParticle.Provider::new);
+        public static void onRegisterParticleProviders(final ParticleFactoryRegisterEvent event) {
+            Minecraft.getInstance().particleEngine.register(SSParticles.HEAL.get(), HealParticle.Provider::new);
+            Minecraft.getInstance().particleEngine.register(SSParticles.FIRE.get(), FireParticle.Provider::new);
+            Minecraft.getInstance().particleEngine.register(SSParticles.AIR.get(), AirParticle.Provider::new);
         }
     }
 }

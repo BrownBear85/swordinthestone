@@ -18,7 +18,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -29,6 +28,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Random;
 
 public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordStoneBlockEntity {
     public static final String ITEM_TAG = "Item";
@@ -162,7 +163,7 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
     }
 
     private void fillSword() {
-        setItem(UniqueSwordItem.getRandom(variant, level == null ? RandomSource.create() : level.random));
+        setItem(UniqueSwordItem.getRandom(variant, level == null ? new Random() : level.random));
         variant = FILLED_SWORD;
         sendSyncPacket = true;
     }
@@ -186,6 +187,10 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
     /** @return a copy of the held stack */
     public ItemStack getItem() {
         return stack.copy();
+    }
+
+    public ItemStack getItemRaw() {
+        return stack;
     }
 
     public float[] getBeamColor() {

@@ -15,7 +15,7 @@ import com.bonker.swordinthestone.util.Util;
 import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,7 +51,7 @@ import java.util.function.Supplier;
 
 public class SwordAbilities {
     public static final DeferredRegister<SwordAbility> SWORD_ABILITIES = DeferredRegister.create(new ResourceLocation(SwordInTheStone.MODID, "sword_abilities"), SwordInTheStone.MODID);
-    public static final Supplier<IForgeRegistry<SwordAbility>> SWORD_ABILITY_REGISTRY = SWORD_ABILITIES.makeRegistry(RegistryBuilder::new);
+    public static final Supplier<IForgeRegistry<SwordAbility>> SWORD_ABILITY_REGISTRY = SWORD_ABILITIES.makeRegistry(SwordAbility.class, RegistryBuilder::new);
 
     // Thunder Smite
     public static final RegistryObject<SwordAbility> THUNDER_SMITE = register("thunder_smite",
@@ -62,11 +62,12 @@ public class SwordAbilities {
                         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, victim.getX(), victim.getY() + 1.0, victim.getZ(), 20, 0.7, 1, 0.7, 0.4);
                         level.playSound(null, holder.getX(), holder.getY(), holder.getZ(), SSSounds.ZAP.get(), SoundSource.PLAYERS, 2.0F, 2.0F - charge * 0.5F);
                         if (++charge > 3) {
-                            LightningBolt bolt = EntityType.LIGHTNING_BOLT.spawn(level, null, entity -> {
-                                entity.setVisualOnly(true);
-                                if (holder instanceof ServerPlayer serverPlayer) entity.setCause(serverPlayer);
-                            }, victim.blockPosition(), MobSpawnType.MOB_SUMMONED, false, false);
+                            LightningBolt bolt = EntityType.LIGHTNING_BOLT.spawn(level, null, null, null,
+                                    victim.blockPosition(), MobSpawnType.COMMAND, false, false);
                             if (bolt != null) {
+                                bolt.setVisualOnly(true);
+                                if (holder instanceof ServerPlayer serverPlayer) bolt.setCause(serverPlayer);
+
                                 List<Entity> list = level.getEntities(bolt, new AABB(bolt.getX() - 3.0D, bolt.getY() - 3.0D, bolt.getZ() - 3.0D, bolt.getX() + 3.0D, bolt.getY() + 6.0D + 3.0D, bolt.getZ() + 3.0D), Entity::isAlive);
                                 for (Entity entity : list) {
                                     if (entity == holder) continue;
@@ -250,12 +251,15 @@ public class SwordAbilities {
                     BatSwarmGoal.BatSwarm swarm = new BatSwarmGoal.BatSwarm(player);
                     for (int i = 0; i < 15; i++) {
                         boolean isLeader = i == 0;
-                        Bat entity = EntityType.BAT.spawn((ServerLevel) level, null, bat -> {
+                        Bat bat = EntityType.BAT.spawn((ServerLevel) level, null, null, null,
+                                BlockPos.ZERO, MobSpawnType.COMMAND, false, false);
+                        if (bat != null) {
                             bat.setPos(pos.add(Util.relativeVec(player.getRotationVector(), 0, (level.random.nextFloat() - 0.5) * 2 - 1, (level.random.nextFloat() - 0.5) * 2)));
-                            bat.setCustomName(Component.translatable("ability.swordinthestone.bat_swarm.name", player.getDisplayName(), Component.translatable(bat.getType().getDescriptionId())).withStyle(SwordAbilities.BAT_SWARM.get().getColorStyle()));
+                            bat.setCustomName(new TranslatableComponent("ability.swordinthestone.bat_swarm.name", player.getDisplayName(),
+                                    new TranslatableComponent(bat.getType().getDescriptionId())).withStyle(SwordAbilities.BAT_SWARM.get().getColorStyle()));
                             bat.goalSelector.addGoal(0, new BatSwarmGoal(bat, swarm, isLeader));
-                        }, BlockPos.ZERO, MobSpawnType.COMMAND,false, false);
-                        if (isLeader && entity != null) player.startRiding(entity);
+                            if (isLeader) player.startRiding(bat);
+                        }
                     }
                 }
 

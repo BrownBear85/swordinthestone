@@ -4,7 +4,7 @@ import com.bonker.swordinthestone.SwordInTheStone;
 import com.bonker.swordinthestone.common.item.SSItems;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -25,8 +25,8 @@ public class SSItemModelProvider extends ItemModelProvider {
     private final AnimatedTextureProvider animatedTextureProvider;
     private final SSBlockStateProvider blockStateProvider;
 
-    public SSItemModelProvider(PackOutput output, String modid, ExistingFileHelper existingFileHelper, LanguageProvider languageProvider, AnimatedTextureProvider animatedTextureProvider, SSBlockStateProvider blockStateProvider) {
-        super(output, modid, existingFileHelper);
+    public SSItemModelProvider(DataGenerator dataGenerator, String modid, ExistingFileHelper existingFileHelper, LanguageProvider languageProvider, AnimatedTextureProvider animatedTextureProvider, SSBlockStateProvider blockStateProvider) {
+        super(dataGenerator, modid, existingFileHelper);
         this.languageProvider = languageProvider;
         this.animatedTextureProvider = animatedTextureProvider;
         this.blockStateProvider = blockStateProvider;

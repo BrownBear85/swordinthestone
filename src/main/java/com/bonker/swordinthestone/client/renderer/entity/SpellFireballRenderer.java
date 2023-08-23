@@ -2,7 +2,7 @@ package com.bonker.swordinthestone.client.renderer.entity;
 
 import com.bonker.swordinthestone.common.entity.SpellFireball;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -26,7 +26,7 @@ public class SpellFireballRenderer extends ThrownItemRenderer<SpellFireball> {
         pMatrixStack.translate(0, 0.5, 0);
         pMatrixStack.scale(scale, scale, scale);
         pMatrixStack.mulPose(entityRenderDispatcher.cameraOrientation());
-        pMatrixStack.mulPose(Axis.YP.rotationDegrees(180.0F));
+        pMatrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F));
         itemRenderer.renderStatic(pEntity.getItem(), ItemTransforms.TransformType.NONE, pPackedLight, OverlayTexture.NO_OVERLAY, pMatrixStack, pBuffer, pEntity.getId());
         pMatrixStack.popPose();
     }

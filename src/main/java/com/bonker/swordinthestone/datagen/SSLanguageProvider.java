@@ -3,13 +3,13 @@ package com.bonker.swordinthestone.datagen;
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.bonker.swordinthestone.common.ability.SwordAbility;
 import com.bonker.swordinthestone.common.entity.SSEntityTypes;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.data.LanguageProvider;
 
 public class SSLanguageProvider extends LanguageProvider {
-    public SSLanguageProvider(PackOutput output, String modid, String locale) {
-        super(output, modid, locale);
+    public SSLanguageProvider(DataGenerator dataGenerator, String modid, String locale) {
+        super(dataGenerator, modid, locale);
     }
 
     @Override

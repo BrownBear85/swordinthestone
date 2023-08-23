@@ -4,10 +4,7 @@ import com.bonker.swordinthestone.SwordInTheStone;
 import com.bonker.swordinthestone.client.particle.SSParticles;
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.bonker.swordinthestone.common.ability.SwordAbility;
-import com.bonker.swordinthestone.common.capability.DashCapability;
-import com.bonker.swordinthestone.common.capability.ExtraJumpsCapability;
-import com.bonker.swordinthestone.common.capability.ExtraJumpsProvider;
-import com.bonker.swordinthestone.common.capability.IExtraJumpsCapability;
+import com.bonker.swordinthestone.common.capability.*;
 import com.bonker.swordinthestone.common.command.SSCommands;
 import com.bonker.swordinthestone.common.entity.BatSwarmGoal;
 import com.bonker.swordinthestone.common.entity.EnderRift;
@@ -21,8 +18,6 @@ import com.bonker.swordinthestone.util.Color;
 import com.bonker.swordinthestone.util.DoubleJumpEvent;
 import com.bonker.swordinthestone.util.Util;
 import com.mojang.logging.LogUtils;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -35,12 +30,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeModificationEvent;
-import net.minecraftforge.event.entity.EntityJoinLevelEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.*;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -66,7 +61,7 @@ public class CommonEvents {
             if (event.getSource().getDirectEntity() instanceof LivingEntity attacker && !(attacker instanceof Player)) {
                 ItemStack stack =  attacker.getItemInHand(InteractionHand.MAIN_HAND);
                 if (stack.getItem() instanceof UniqueSwordItem uniqueSwordItem)
-                    uniqueSwordItem.hurtEnemy(stack, event.getEntity(), attacker);
+                    uniqueSwordItem.hurtEnemy(stack, event.getEntityLiving(), attacker);
             }
 
             if (event.getEntity() instanceof ServerPlayer player) {
@@ -87,7 +82,7 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onLivingEntityStopUsing(final LivingEntityUseItemEvent.Stop event) {
             if (event.getItem().getItem() instanceof UniqueSwordItem) {
-                AbilityUtil.getSwordAbility(event.getItem()).releaseUsing(event.getItem(), event.getEntity().level, event.getEntity(), event.getDuration());
+                AbilityUtil.getSwordAbility(event.getItem()).releaseUsing(event.getItem(), event.getEntity().level, event.getEntityLiving(), event.getDuration());
             }
         }
 
@@ -133,7 +128,7 @@ public class CommonEvents {
 
         @SubscribeEvent
         public static void onLivingFall(final LivingFallEvent event) {
-            if (AbilityUtil.isPassiveActive(event.getEntity(), SwordAbilities.DOUBLE_JUMP.get())) {
+            if (AbilityUtil.isPassiveActive(event.getEntityLiving(), SwordAbilities.DOUBLE_JUMP.get())) {
                 float distance = event.getDistance();
                 if (distance >= 3) {
                     if (distance <= 7) event.getEntity().playSound(SoundEvents.GENERIC_SMALL_FALL, 0.5F, 1.0F);
@@ -159,7 +154,7 @@ public class CommonEvents {
         }
 
         @SubscribeEvent
-        public static void onEntityJoinLevel(final EntityJoinLevelEvent event) {
+        public static void onEntityJoinLevel(final EntityJoinWorldEvent event) {
             if (event.loadedFromDisk() && event.getEntity().getTags().contains(BatSwarmGoal.BAT_SWARM)) {
                 event.getEntity().setPos(Vec3.ZERO);
                 event.getEntity().kill();
@@ -196,26 +191,14 @@ public class CommonEvents {
         }
 
         @SubscribeEvent
-        public static void onAttributeModification(final EntityAttributeModificationEvent event) {
-            event.add(EntityType.PLAYER, SSAttributes.JUMPS.get(), 0);
+        public static void onRegisterCapabilities(final RegisterCapabilitiesEvent event) {
+            event.register(IExtraJumpsCapability.class);
+            event.register(IDashCapability.class);
         }
 
         @SubscribeEvent
-        public static void onCreateCreativeModeTab(final CreativeModeTabEvent.Register event) {
-            event.registerCreativeModeTab(new ResourceLocation(SwordInTheStone.MODID, "unique_swords"), (builder) -> builder
-                    .title(Component.translatable("item_group.swordinthestone.swords"))
-                    .icon(() -> new ItemStack(SSItems.FOREST_SWORD.get()))
-                    .displayItems((pEnabledFeatures, pOutput, pDisplayOperatorCreativeTab) -> {
-                        for (RegistryObject<Item> item : SSItems.ITEMS.getEntries()) {
-                            if (item.get() instanceof UniqueSwordItem sword) {
-                                for (RegistryObject<SwordAbility> ability : SwordAbilities.SWORD_ABILITIES.getEntries()) {
-                                    ItemStack stack = new ItemStack(sword);
-                                    stack.getOrCreateTag().putString("ability", ability.getId().toString());
-                                    pOutput.accept(stack);
-                                }
-                            }
-                        }
-                    }));
+        public static void onAttributeModification(final EntityAttributeModificationEvent event) {
+            event.add(EntityType.PLAYER, SSAttributes.JUMPS.get(), 0);
         }
     }
 }

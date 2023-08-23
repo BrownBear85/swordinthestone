@@ -11,10 +11,11 @@ import com.google.common.collect.Multimap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -28,13 +29,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.IItemRenderProperties;
 import net.minecraftforge.common.ForgeTier;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Random;
 import java.util.function.Consumer;
 
 public class UniqueSwordItem extends SwordItem {
@@ -59,7 +61,7 @@ public class UniqueSwordItem extends SwordItem {
         return color;
     }
 
-    public static ItemStack getRandom(String type, RandomSource random) {
+    public static ItemStack getRandom(String type, Random random) {
         if (swords == null)
             swords = SSItems.ITEMS.getEntries().stream().filter(item -> item.get() instanceof UniqueSwordItem).map(item -> (UniqueSwordItem) item.get()).toList();
         if (abilities == null)
@@ -168,20 +170,20 @@ public class UniqueSwordItem extends SwordItem {
         SwordAbility ability = AbilityUtil.getSwordAbility(pStack);
         if (ability == SwordAbility.NONE) return super.getName(pStack);
         Color color = STYLE_TABLE.get(this, ability);
-        return Component.translatable(ability.getTitleKey(), super.getName(pStack)).withStyle(color == null ? Style.EMPTY : color.getStyle());
+        return new TranslatableComponent(ability.getTitleKey(), super.getName(pStack)).withStyle(color == null ? Style.EMPTY : color.getStyle());
     }
 
     @Override
     public void appendHoverText(ItemStack pStack, @Nullable Level pLevel, List<Component> pTooltipComponents, TooltipFlag pIsAdvanced) {
         SwordAbility ability = AbilityUtil.getSwordAbility(pStack);
         if (ability != SwordAbility.NONE) {
-            pTooltipComponents.add(Component.literal("★ ").append(Component.translatable(ability.getNameKey())).withStyle(ability.getColorStyle()));
-            pTooltipComponents.add(Component.translatable(ability.getDescriptionKey()).withStyle(ChatFormatting.GRAY));
+            pTooltipComponents.add(new TextComponent("★ ").append(new TranslatableComponent(ability.getNameKey())).withStyle(ability.getColorStyle()));
+            pTooltipComponents.add(new TranslatableComponent(ability.getDescriptionKey()).withStyle(ChatFormatting.GRAY));
         }
     }
 
     @Override
-    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+    public void initializeClient(Consumer<IItemRenderProperties> consumer) {
         consumer.accept(SSBEWLR.extension());
     }
 }

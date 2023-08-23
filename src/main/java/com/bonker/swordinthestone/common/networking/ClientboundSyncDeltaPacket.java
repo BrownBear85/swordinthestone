@@ -4,6 +4,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
 
 public class ClientboundSyncDeltaPacket {
     private final double xd, yd, zd;
@@ -26,7 +29,7 @@ public class ClientboundSyncDeltaPacket {
         buf.writeDouble(zd);
     }
 
-    public void handle() {
+    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player != null) player.setDeltaMovement(new Vec3(xd, yd, zd));
     }

@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:bastion_remnant",
+  "biomes": "#swordinthestone:has_structure/sword_stone_wastes",
+  "adapt_noise": true,
+  "spawn_overrides": {},
+  "config": {
+    "start_pool": "swordinthestone:sword_stone_wastes",
+    "size": 1
+  }
+}

@@ -26,6 +26,6 @@ public class SSSounds {
 
 
     private static RegistryObject<SoundEvent> register(String name) {
-        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(SwordInTheStone.MODID, name)));
+        return SOUND_EVENTS.register(name, () -> new SoundEvent(new ResourceLocation(SwordInTheStone.MODID, name)));
     }
 }

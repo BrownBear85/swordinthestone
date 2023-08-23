@@ -4,6 +4,7 @@ import com.bonker.swordinthestone.common.item.UniqueSwordItem;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.server.level.ServerLevel;
@@ -19,10 +20,9 @@ public class SSCommands {
                 .executes(SSCommands::makeSword));
     }
 
-    private static int makeSword(CommandContext<CommandSourceStack> context) {
+    private static int makeSword(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
         ServerLevel level = context.getSource().getLevel();
-        ServerPlayer player = context.getSource().getPlayer();
-        if (player == null) return 0;
+        ServerPlayer player = context.getSource().getPlayerOrException();
 
         int num;
         try {
@@ -32,7 +32,7 @@ public class SSCommands {
         }
 
         for (int i = 0; i < num; i++) {
-            ItemStack stack = UniqueSwordItem.getRandom("random", level.random);
+            ItemStack stack = UniqueSwordItem.getRandom("random", level.getRandom());
             if (!player.getInventory().add(stack)) {
                 player.drop(stack, false);
             }

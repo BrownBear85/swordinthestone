@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.EntityModelSet;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -15,14 +16,14 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.RenderTypeHelper;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.IItemRenderProperties;
 import net.minecraftforge.registries.ForgeRegistries;
 public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
     public static SSBEWLR INSTANCE;
-    public static IClientItemExtensions extension() {return new IClientItemExtensions() {
+    public static IItemRenderProperties extension() {return new IItemRenderProperties() {
         @Override
-        public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+        public BlockEntityWithoutLevelRenderer getItemStackRenderer() {
             return SSBEWLR.INSTANCE;
         }
     };}
@@ -39,17 +40,17 @@ public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
         pPoseStack.popPose(); // remove translations from ItemRenderer
         pPoseStack.pushPose();
 
-        render(pStack, swordModel, pDisplayContext, pPoseStack, pBuffer, RenderType.solid(), pStack.hasFoil(), pPackedLight, pPackedOverlay);
-        if (abilityModel != null) render(pStack, abilityModel, pDisplayContext, pPoseStack, pBuffer, RenderType.translucent(), pStack.hasFoil(), pPackedLight, pPackedOverlay);
+        render(pStack, swordModel, pDisplayContext, pPoseStack, pBuffer, pStack.hasFoil(), pPackedLight, pPackedOverlay);
+        if (abilityModel != null) render(pStack, abilityModel, pDisplayContext, pPoseStack, pBuffer, pStack.hasFoil(), pPackedLight, pPackedOverlay);
     }
 
-    private static void render(ItemStack stack, ResourceLocation modelLoc, ItemTransforms.TransformType displayContext, PoseStack poseStack, MultiBufferSource bufferSource, RenderType renderType, boolean glint, int packedLight, int packedOverlay) {
+    private static void render(ItemStack stack, ResourceLocation modelLoc, ItemTransforms.TransformType displayContext, PoseStack poseStack, MultiBufferSource bufferSource, boolean glint, int packedLight, int packedOverlay) {
         poseStack.pushPose();
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLoc);
-        model = model.applyTransform(displayContext, poseStack, isLeftHand(displayContext));
+        model = ForgeHooksClient.handleCameraTransforms(poseStack, model, displayContext, displayContext == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND || displayContext == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND);
         poseStack.translate(-0.5, -0.5, -0.5); // replicate ItemRenderer translation
 
         boolean inGui = displayContext == ItemTransforms.TransformType.GUI;
@@ -57,7 +58,7 @@ public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
             Lighting.setupForFlatItems();
         }
 
-        renderType = RenderTypeHelper.getEntityRenderType(renderType, true);
+        RenderType renderType = ItemBlockRenderTypes.getRenderType(stack, true);
         VertexConsumer vertexConsumer = ItemRenderer.getFoilBuffer(bufferSource, renderType, true, glint);
         itemRenderer.renderModelLists(model, stack, packedLight, packedOverlay, poseStack, vertexConsumer);
 
@@ -67,9 +68,5 @@ public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
         }
 
         poseStack.popPose();
-    }
-
-    private static boolean isLeftHand(ItemTransforms.TransformType displayContext) {
-        return displayContext == ItemTransforms.TransformType.FIRST_PERSON_LEFT_HAND || displayContext == ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
     }
 }

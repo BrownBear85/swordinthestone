@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:pillager_outpost",
+  "biomes": "#swordinthestone:has_structure/sword_stone_snowy",
+  "adapt_noise": true,
+  "spawn_overrides": {},
+  "config": {
+    "start_pool": "swordinthestone:sword_stone_snowy",
+    "size": 1
+  }
+}

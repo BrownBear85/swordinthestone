@@ -11,7 +11,7 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.function.Supplier;
 
 public class SSBlockEntities {
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, SwordInTheStone.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, SwordInTheStone.MODID);
 
     public static final RegistryObject<BlockEntityType<SwordStoneMasterBlockEntity>> SWORD_STONE_MASTER = register("sword_stone_master",
             () -> BlockEntityType.Builder.of(SwordStoneMasterBlockEntity::new, SSBlocks.SWORD_STONE.get()));

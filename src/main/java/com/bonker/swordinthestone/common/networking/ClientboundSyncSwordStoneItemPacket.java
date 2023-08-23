@@ -6,6 +6,9 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
 
 public class ClientboundSyncSwordStoneItemPacket {
     private final BlockPos pos;
@@ -31,7 +34,7 @@ public class ClientboundSyncSwordStoneItemPacket {
         buf.writeItem(stack);
     }
 
-    public void handle() {
+    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         level.getBlockEntity(pos, SSBlockEntities.SWORD_STONE_MASTER.get()).ifPresent(entity -> entity.setItem(stack));

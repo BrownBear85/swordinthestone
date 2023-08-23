@@ -3,7 +3,8 @@ package com.bonker.swordinthestone.client.renderer;
 import com.bonker.swordinthestone.common.block.entity.SwordStoneMasterBlockEntity;
 import com.bonker.swordinthestone.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
@@ -12,8 +13,9 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.Random;
 
 public class SwordStoneBlockEntityRenderer implements BlockEntityRenderer<SwordStoneMasterBlockEntity> {
     private static final int HEIGHT_PER_TICK = 2;
@@ -22,7 +24,7 @@ public class SwordStoneBlockEntityRenderer implements BlockEntityRenderer<SwordS
     private final ItemRenderer itemRenderer;
 
     public SwordStoneBlockEntityRenderer(BlockEntityRendererProvider.Context pContext) {
-        this.itemRenderer = pContext.getItemRenderer();
+        this.itemRenderer = Minecraft.getInstance().getItemRenderer();
     }
 
     @Override
@@ -49,22 +51,25 @@ public class SwordStoneBlockEntityRenderer implements BlockEntityRenderer<SwordS
         poseStack.popPose();
     }
 
+
     public void renderItem(float yRot, SwordStoneMasterBlockEntity entity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
-        RandomSource random = RandomSource.create(entity.progress * 5000000L); // create a random source dependent on progress so the output will be the same as long as the progress is the same
+        Random random = new Random(entity.progress * 5000000L); // create a random source dependent on progress so the output will be the same as long as the progress is the same
         // this is necessary so the shake direction isn't different every frame
 
         float animationTick = entity.ticksSinceLastInteraction + partialTick;
         int direction = random.nextBoolean() ? 1 : -1; // shake direction (left/right)
         float tilt = direction * 3.5F * Mth.sin(animationTick) * entity.progress / (10 + animationTick * animationTick);
 
+        poseStack.pushPose();
         poseStack.translate(entity.centerXOffset(), 1.6, entity.centerZOffset()); // center the item
-        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.wrapDegrees(yRot))); // spinning angle
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.wrapDegrees(yRot))); // spinning angle
         poseStack.translate(0, -0.7F, 0);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(tilt)); // shaking tilt
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(tilt)); // shaking tilt
         poseStack.translate(0, 0.7F, 0);
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-45F)); // sword sits upright
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(-45F)); // sword sits upright
 
         itemRenderer.renderStatic(entity.getItem(), ItemTransforms.TransformType.FIXED, packedLight, packedOverlay, poseStack, bufferSource, 42);
+        poseStack.popPose();
     }
 
     private float beaconX(SwordStoneMasterBlockEntity entity) {

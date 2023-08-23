@@ -9,7 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 public class SSEntityTypes {
-    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, SwordInTheStone.MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITIES, SwordInTheStone.MODID);
 
 
     public static final RegistryObject<EntityType<HeightAreaEffectCloud>> HEIGHT_AREA_EFFECT_CLOUD = register("height_area_effect_cloud",

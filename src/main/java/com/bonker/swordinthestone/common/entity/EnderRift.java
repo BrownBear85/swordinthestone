@@ -82,7 +82,7 @@ public class EnderRift extends Projectile {
                 entity.resetFallDistance();
             });
 
-            playSound(SoundEvents.CHORUS_FRUIT_TELEPORT);
+            playSound(SoundEvents.CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
         }
 
         discard();

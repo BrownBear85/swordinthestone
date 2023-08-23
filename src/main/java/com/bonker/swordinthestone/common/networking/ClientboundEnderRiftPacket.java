@@ -8,6 +8,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.network.NetworkEvent;
+
+import java.util.function.Supplier;
 
 public class ClientboundEnderRiftPacket {
     protected final int entityId;
@@ -35,7 +38,7 @@ public class ClientboundEnderRiftPacket {
         buf.writeDouble(delta.z());
     }
 
-    public void handle() {
+    public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
         ClientLevel level = (ClientLevel) player.level;

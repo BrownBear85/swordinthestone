@@ -31,19 +31,19 @@ public class SSNetworking {
         INSTANCE.messageBuilder(ServerboundDashAttackPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ServerboundDashAttackPacket::new)
                 .encoder(ServerboundDashAttackPacket::encode)
-                .consumerMainThread(ServerboundDashAttackPacket::handle)
+                .consumer(ServerboundDashAttackPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(ServerboundEnderRiftPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ServerboundEnderRiftPacket::new)
                 .encoder(ServerboundEnderRiftPacket::encode)
-                .consumerMainThread(ServerboundEnderRiftPacket::handle)
+                .consumer(ServerboundEnderRiftPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(ServerboundExtraJumpPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
                 .decoder(ServerboundExtraJumpPacket::new)
                 .encoder(ServerboundExtraJumpPacket::encode)
-                .consumerMainThread(ServerboundExtraJumpPacket::handle)
+                .consumer(ServerboundExtraJumpPacket::handle)
                 .add();
 
         /* clientbound */
@@ -51,25 +51,25 @@ public class SSNetworking {
         INSTANCE.messageBuilder(ClientboundSyncDeltaPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(ClientboundSyncDeltaPacket::new)
                 .encoder(ClientboundSyncDeltaPacket::encode)
-                .consumerMainThread((packet, contextSupplier) -> packet.handle())
+                .consumer(ClientboundSyncDeltaPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(ClientboundSyncSwordStoneItemPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(ClientboundSyncSwordStoneItemPacket::new)
                 .encoder(ClientboundSyncSwordStoneItemPacket::encode)
-                .consumerMainThread((packet, contextSupplier) -> packet.handle())
+                .consumer(ClientboundSyncSwordStoneItemPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(ClientboundSyncSwordStoneDataPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(ClientboundSyncSwordStoneDataPacket::new)
                 .encoder(ClientboundSyncSwordStoneDataPacket::encode)
-                .consumerMainThread((packet, contextSupplier) -> packet.handle())
+                .consumer(ClientboundSyncSwordStoneDataPacket::handle)
                 .add();
 
         INSTANCE.messageBuilder(ClientboundEnderRiftPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(ClientboundEnderRiftPacket::new)
                 .encoder(ClientboundEnderRiftPacket::encode)
-                .consumerMainThread((packet, contextSupplier) -> packet.handle())
+                .consumer(ClientboundEnderRiftPacket::handle)
                 .add();
     }
 

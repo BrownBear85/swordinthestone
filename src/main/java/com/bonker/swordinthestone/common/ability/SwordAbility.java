@@ -15,8 +15,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.registries.ForgeRegistryEntry;
 
-public abstract class SwordAbility {
+public abstract class SwordAbility extends ForgeRegistryEntry<SwordAbility> {
     public static final SwordAbility NONE = new SwordAbility(0x000000) {};
 
     private final Color color;

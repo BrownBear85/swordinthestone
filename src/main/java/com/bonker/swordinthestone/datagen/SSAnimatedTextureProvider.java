@@ -1,10 +1,11 @@
 package com.bonker.swordinthestone.datagen;
 
-import net.minecraft.data.PackOutput;
+
+import net.minecraft.data.DataGenerator;
 
 public class SSAnimatedTextureProvider extends AnimatedTextureProvider {
-    public SSAnimatedTextureProvider(PackOutput packOutput, String modid) {
-        super(packOutput, modid);
+    public SSAnimatedTextureProvider(DataGenerator generator, String modid) {
+        super(generator, modid);
     }
 
     @Override

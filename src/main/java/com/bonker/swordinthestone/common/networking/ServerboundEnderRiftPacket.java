@@ -24,6 +24,7 @@ public class ServerboundEnderRiftPacket extends ClientboundEnderRiftPacket {
         super(buf);
     }
 
+    @Override
     public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
         ServerPlayer player = contextSupplier.get().getSender();
         if (player == null) return;

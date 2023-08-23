@@ -15,6 +15,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -68,7 +69,7 @@ public class SpellFireball extends Fireball {
     protected void onHit(HitResult pResult) {
         super.onHit(pResult);
         if (!level.isClientSide) {
-            level.explode(this, getX(), getY() + 0.5, getZ(), getPower(), true, Level.ExplosionInteraction.BLOCK);
+            level.explode(this, getX(), getY() + 0.5, getZ(), getPower(), true, Explosion.BlockInteraction.DESTROY);
             double radius = Math.min(1, getPower());
             ((ServerLevel) level).sendParticles(SSParticles.FIRE.get(), getX(), getY(), getZ(), Mth.floor(radius * 25F), radius, radius, radius, 0F);
             discard();

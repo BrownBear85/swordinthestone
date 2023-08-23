@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:endcity",
+  "biomes": "#swordinthestone:has_structure/sword_stone_end",
+  "adapt_noise": true,
+  "spawn_overrides": {},
+  "config": {
+    "start_pool": "swordinthestone:sword_stone_end",
+    "size": 1
+  }
+}

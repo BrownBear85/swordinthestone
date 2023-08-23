@@ -3,9 +3,10 @@ package com.bonker.swordinthestone.util;
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.bonker.swordinthestone.common.ability.SwordAbility;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
-import net.minecraft.network.chat.Component;
+import net.minecraft.Util;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -65,18 +66,18 @@ public class AbilityUtil {
     }
 
     public static void sendAlchemistMsg(ServerPlayer player, MobEffectInstance effectInst, boolean self) {
-        MutableComponent component = Component.translatable(effectInst.getDescriptionId());
+        MutableComponent component = new TranslatableComponent(effectInst.getDescriptionId());
 
         if (effectInst.getAmplifier() > 0) {
-            component = Component.translatable("potion.withAmplifier", component, Component.translatable("potion.potency." + effectInst.getAmplifier()));
+            component = new TranslatableComponent("potion.withAmplifier", component, new TranslatableComponent("potion.potency." + effectInst.getAmplifier()));
         }
 
         if (effectInst.getDuration() > 20) {
-            component = Component.translatable("potion.withDuration", component, Component.literal(effectInst.getDuration() / 20 + "s"));
+            component = new TranslatableComponent("potion.withDuration", component, effectInst.getDuration() / 20 + "s");
         }
 
         component = component.withStyle(Style.EMPTY.withColor(effectInst.getEffect().getColor()));
 
-        player.sendSystemMessage(Component.translatable("ability.swordinthestone.alchemist." + (self ? "self" : "victim"), component).withStyle(SwordAbilities.ALCHEMIST.get().getColorStyle()), true);
+        player.sendMessage(new TranslatableComponent("ability.swordinthestone.alchemist." + (self ? "self" : "victim"), component).withStyle(SwordAbilities.ALCHEMIST.get().getColorStyle()), Util.NIL_UUID);
     }
 }

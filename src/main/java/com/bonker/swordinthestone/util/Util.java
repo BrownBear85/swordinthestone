@@ -8,7 +8,6 @@ import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -16,10 +15,26 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class Util {
-    public static final EntityDataSerializer<Vec3> VEC3 = EntityDataSerializer.simple(Util::writeVec3, Util::readVec3);
+    public static final EntityDataSerializer<Vec3> VEC3 = new EntityDataSerializer<Vec3>() {
+        @Override
+        public void write(FriendlyByteBuf pBuffer, Vec3 pValue) {
+            writeVec3(pBuffer, pValue);
+        }
+
+        @Override
+        public Vec3 read(FriendlyByteBuf pBuffer) {
+            return readVec3(pBuffer);
+        }
+
+        @Override
+        public Vec3 copy(Vec3 pValue) {
+            return new Vec3(pValue.x(), pValue.y(), pValue.z());
+        }
+    };
 
     static {
         EntityDataSerializers.registerSerializer(VEC3);
@@ -62,7 +77,7 @@ public class Util {
     }
 
     /** make sure the list isn't empty */
-    public static <T> T randomListItem(List<T> list, RandomSource random) {
+    public static <T> T randomListItem(List<T> list, Random random) {
         return list.get(random.nextInt(list.size()));
     }
 
