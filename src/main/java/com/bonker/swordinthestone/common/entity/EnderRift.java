@@ -1,8 +1,9 @@
 package com.bonker.swordinthestone.common.entity;
 
-import com.bonker.swordinthestone.client.ClientUtil;
+import com.bonker.swordinthestone.common.SSConfig;
 import com.bonker.swordinthestone.common.networking.ClientboundEnderRiftPacket;
 import com.bonker.swordinthestone.common.networking.SSNetworking;
+import com.bonker.swordinthestone.util.SideUtil;
 import com.bonker.swordinthestone.util.Util;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -43,11 +44,11 @@ public class EnderRift extends Projectile {
     public void tick() {
         super.tick();
 
-        if (++age >= 60) {
+        if (++age >= SSConfig.ENDER_RIFT_DURATION.get()) {
             teleport();
         }
 
-        if (level.isClientSide) {
+        if (getLevel().isClientSide) {
             addParticles(this, 3, 0);
             entities.forEach(e -> addParticles(e, 1, e.getBbHeight()));
         }
@@ -55,16 +56,16 @@ public class EnderRift extends Projectile {
         if (!(getOwner() instanceof Player owner)) return;
 
         if (getEntityData().get(DATA_CONTROLLING)) {
-            if (level.isClientSide) ClientUtil.controlEnderRift(this, owner);
+            if (getLevel().isClientSide) SideUtil.controlEnderRift(this, owner);
         } else {
             move(MoverType.SELF, getDeltaMovement());
 
-            if (age % 5 == 0 && !level.isClientSide)
+            if (age % 5 == 0 && !getLevel().isClientSide)
                 SSNetworking.sendToTrackingClients(new ClientboundEnderRiftPacket(getId(), position(), getDeltaMovement()), this);
         }
 
         if (age % 2 == 0) {
-            entities.addAll(level.getEntities(this, getBoundingBox().inflate(0.3)));
+            entities.addAll(getLevel().getEntities(this, getBoundingBox().inflate(0.3)));
         }
     }
 
@@ -90,7 +91,7 @@ public class EnderRift extends Projectile {
 
     private static void addParticles(Entity entity, int count, double offset) {
         for (int i = 0; i < count; i++) {
-            entity.level.addParticle(ParticleTypes.WITCH, entity.getX(), entity.getY() + offset, entity.getZ(), 0, 0, 0);
+            entity.getLevel().addParticle(ParticleTypes.WITCH, entity.getX(), entity.getY() + offset, entity.getZ(), 0, 0, 0);
         }
     }
 
@@ -108,13 +109,7 @@ public class EnderRift extends Projectile {
 
     @Override
     public boolean shouldRenderAtSqrDistance(double pDistance) {
-        double d0 = getBoundingBox().getSize() * 4.0D;
-        if (Double.isNaN(d0)) {
-            d0 = 4.0D;
-        }
-
-        d0 *= 64.0D;
-        return pDistance < d0 * d0;
+        return pDistance < 16384; // 128^2
     }
 
     @Override

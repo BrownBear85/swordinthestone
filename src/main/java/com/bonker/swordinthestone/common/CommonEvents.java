@@ -1,14 +1,10 @@
 package com.bonker.swordinthestone.common;
 
 import com.bonker.swordinthestone.SwordInTheStone;
+import com.bonker.swordinthestone.client.gui.SSItemDecorator;
 import com.bonker.swordinthestone.client.particle.SSParticles;
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.bonker.swordinthestone.common.ability.SwordAbility;
-import com.bonker.swordinthestone.common.capability.DashCapability;
-import com.bonker.swordinthestone.common.capability.ExtraJumpsCapability;
-import com.bonker.swordinthestone.common.capability.ExtraJumpsProvider;
-import com.bonker.swordinthestone.common.capability.IExtraJumpsCapability;
-import com.bonker.swordinthestone.common.command.SSCommands;
 import com.bonker.swordinthestone.common.entity.BatSwarmGoal;
 import com.bonker.swordinthestone.common.entity.EnderRift;
 import com.bonker.swordinthestone.common.entity.HeightAreaEffectCloud;
@@ -16,11 +12,15 @@ import com.bonker.swordinthestone.common.item.SSItems;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
 import com.bonker.swordinthestone.common.networking.SSNetworking;
 import com.bonker.swordinthestone.common.networking.ServerboundDashAttackPacket;
+import com.bonker.swordinthestone.server.capability.DashCapability;
+import com.bonker.swordinthestone.server.capability.ExtraJumpsCapability;
+import com.bonker.swordinthestone.server.capability.ExtraJumpsProvider;
+import com.bonker.swordinthestone.server.capability.IExtraJumpsCapability;
+import com.bonker.swordinthestone.server.command.SSCommands;
 import com.bonker.swordinthestone.util.AbilityUtil;
 import com.bonker.swordinthestone.util.Color;
 import com.bonker.swordinthestone.util.DoubleJumpEvent;
 import com.bonker.swordinthestone.util.Util;
-import com.mojang.logging.LogUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -32,7 +32,9 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.event.RegisterItemDecorationsEvent;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
@@ -44,11 +46,8 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.RegistryObject;
-import org.slf4j.Logger;
 
 public class CommonEvents {
-    private static final Logger LOGGER = LogUtils.getLogger();
-
     @Mod.EventBusSubscriber(modid = SwordInTheStone.MODID)
     public static class ForgeBus {
         @SubscribeEvent
@@ -68,7 +67,7 @@ public class CommonEvents {
 
             if (event.getEntity() instanceof ServerPlayer player) {
                 player.getCapability(DashCapability.DASH).ifPresent(cap -> {
-                    if (DashCapability.getTicks(player) > 0 && event.getSource().msgId.equals("mob")) event.setCanceled(true);
+                    if (DashCapability.getTicks(player) > 0 && event.getSource().getMsgId().equals("mob")) event.setCanceled(true);
                 });
             }
         }
@@ -78,13 +77,6 @@ public class CommonEvents {
             if (event.getObject() instanceof Player) {
                 event.addCapability(DashCapability.NAME, DashCapability.createProvider());
                 event.addCapability(ExtraJumpsCapability.NAME, new ExtraJumpsProvider());
-            }
-        }
-
-        @SubscribeEvent
-        public static void onLivingEntityStopUsing(final LivingEntityUseItemEvent.Stop event) {
-            if (event.getItem().getItem() instanceof UniqueSwordItem) {
-                AbilityUtil.getSwordAbility(event.getItem()).releaseUsing(event.getItem(), event.getEntity().level, event.getEntity(), event.getDuration());
             }
         }
 
@@ -101,11 +93,11 @@ public class CommonEvents {
                 if (player.getDeltaMovement().lengthSqr() < 0.01) dashTicks = 0;
 
                 if (event.side == LogicalSide.SERVER && dashTicks > 0) {
-                    HeightAreaEffectCloud.createToxicDashCloud(player.level, player, player.getX(), player.getY() - 0.5, player.getZ());
+                    HeightAreaEffectCloud.createToxicDashCloud(player.getLevel(), player, player.getX(), player.getY() - 0.5, player.getZ());
                 }
 
                 if (dashTicks > 0 && event.side == LogicalSide.CLIENT) {
-                    player.level.getEntities(player, player.getBoundingBox().inflate(0.5)).forEach(entity -> {
+                    player.getLevel().getEntities(player, player.getBoundingBox().inflate(0.5)).forEach(entity -> {
                         if (entity instanceof LivingEntity && !cap.isDashed(entity)) {
                             cap.addToDashed(entity);
                             SSNetworking.sendToServer(new ServerboundDashAttackPacket(entity.getId()));
@@ -116,7 +108,11 @@ public class CommonEvents {
                 cap.setDashTicks(dashTicks);
             });
 
-            if (player.isOnGround()) {
+            if (player.getVehicle() == null || !SSConfig.DOUBLE_JUMP_VEHICLE.get()) {
+                if (player.isOnGround()) {
+                    player.getCapability(ExtraJumpsCapability.JUMPS).ifPresent(IExtraJumpsCapability::resetExtraJumps);
+                }
+            } else if ((player.getVehicle().isOnGround() || player.getVehicle().getBlockStateOn().is(Blocks.WATER)) && player.getLevel().getGameTime() % 5 == 0) {
                 player.getCapability(ExtraJumpsCapability.JUMPS).ifPresent(IExtraJumpsCapability::resetExtraJumps);
             }
         }
@@ -135,9 +131,9 @@ public class CommonEvents {
                 if (distance >= 3) {
                     if (distance <= 7) event.getEntity().playSound(SoundEvents.GENERIC_SMALL_FALL, 0.5F, 1.0F);
 
-                    event.getEntity().playSound(SSSounds.LAND.get(), 0.3F, 0.6F + event.getEntity().level.random.nextFloat() * 0.8F);
+                    event.getEntity().playSound(SSSounds.LAND.get(), 0.3F, 0.6F + event.getEntity().getLevel().random.nextFloat() * 0.8F);
 
-                    if (event.getEntity().level instanceof ServerLevel serverLevel) {
+                    if (event.getEntity().getLevel() instanceof ServerLevel serverLevel) {
                         serverLevel.sendParticles(SSParticles.AIR.get(), event.getEntity().getX(), event.getEntity().getY() + 0.1, event.getEntity().getZ(), 20, 0.5, 0.1, 0.5, 0.05);
                     }
                 }
@@ -150,9 +146,9 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onDoubleJump(final DoubleJumpEvent event) {
             Vec3 pos = event.getEntity().position();
-            ServerLevel level = (ServerLevel) event.getEntity().level;
+            ServerLevel level = (ServerLevel) event.getEntity().getLevel();
             level.sendParticles(SSParticles.AIR.get(), pos.x, pos.y, pos.z, 20, 0.5, 0.1, 0.5, 0.05);
-            level.playSound(null, pos.x, pos.y, pos.z, SSSounds.JUMP.get(), SoundSource.PLAYERS, 0.7F, 0.8F + event.getEntity().level.random.nextFloat() * 0.4F);
+            level.playSound(null, pos.x, pos.y, pos.z, SSSounds.JUMP.get(), SoundSource.PLAYERS, 0.7F, 0.8F + event.getEntity().getLevel().random.nextFloat() * 0.4F);
         }
 
         @SubscribeEvent
@@ -185,16 +181,24 @@ public class CommonEvents {
             for (RegistryObject<Item> itemObj : SSItems.ITEMS.getEntries()) {
                 if (itemObj.get() instanceof UniqueSwordItem uniqueSwordItem) {
                     for (RegistryObject<SwordAbility> abilityObj : SwordAbilities.SWORD_ABILITIES.getEntries()) {
-                        UniqueSwordItem.STYLE_TABLE.put(uniqueSwordItem, abilityObj.get(), Color.uniqueSwordColor(abilityObj.get().getColor(), uniqueSwordItem.getColor()));
+                        UniqueSwordItem.COLOR_TABLE.put(uniqueSwordItem, abilityObj.get(), Color.uniqueSwordColor(abilityObj.get().getColor().getValue(), uniqueSwordItem.getColor()));
                     }
                 }
             }
-            LOGGER.info("Filled the Unique Sword text style table with {} combinations", UniqueSwordItem.STYLE_TABLE.size());
         }
 
         @SubscribeEvent
         public static void onAttributeModification(final EntityAttributeModificationEvent event) {
             event.add(EntityType.PLAYER, SSAttributes.JUMPS.get(), 0);
+        }
+
+        @SubscribeEvent
+        public static void onRegisterItemDecorations(final RegisterItemDecorationsEvent event) {
+            for (RegistryObject<Item> obj : SSItems.ITEMS.getEntries()) {
+                if (obj.get() instanceof UniqueSwordItem) {
+                    event.register(obj.get(), SSItemDecorator.ITEM_DECORATOR);
+                }
+            }
         }
     }
 }

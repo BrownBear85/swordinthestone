@@ -15,13 +15,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
 
 public class HeightAreaEffectCloud extends AreaEffectCloud {
-    private static final DustParticleOptions TOXIC_DASH_PARTICLE = new DustParticleOptions(new Vector3f(Vec3.fromRGB24(SwordAbilities.TOXIC_DASH.get().getColor())), 1.25F);
+    private static final DustParticleOptions TOXIC_DASH_PARTICLE = new DustParticleOptions(new Vector3f(SwordAbilities.TOXIC_DASH.get().getColor().getDiffusedColor()), 1.25F);
     private static final EntityDataAccessor<Float> DATA_HEIGHT = SynchedEntityData.defineId(HeightAreaEffectCloud.class, EntityDataSerializers.FLOAT);
     private boolean ownerImmune = false;
 
@@ -54,7 +53,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
 
         boolean waiting = isWaiting();
         float radius = getRadius();
-        if (level.isClientSide) {
+        if (getLevel().isClientSide) {
             if (waiting) {
                 return;
             }
@@ -83,7 +82,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                     zd = (0.5D - random.nextDouble()) * 0.15D;
                 }
 
-                level.addAlwaysVisibleParticle(particle, x, y, z, xd, yd, zd);
+                getLevel().addAlwaysVisibleParticle(particle, x, y, z, xd, yd, zd);
             }
         } else {
             if (tickCount >= waitTime + duration) {
@@ -122,7 +121,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                 if (effects.isEmpty()) {
                     victims.clear();
                 } else {
-                    List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, getBoundingBox());
+                    List<LivingEntity> entities = getLevel().getEntitiesOfClass(LivingEntity.class, getBoundingBox());
                     if (!entities.isEmpty()) {
                         for (LivingEntity entity : entities) {
                             if (!victims.containsKey(entity) && entity.isAffectedByPotions()) {

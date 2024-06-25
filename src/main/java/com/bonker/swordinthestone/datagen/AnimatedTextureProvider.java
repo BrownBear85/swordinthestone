@@ -32,9 +32,8 @@ public abstract class AnimatedTextureProvider implements DataProvider {
     }
 
     protected void generateAll(CachedOutput cache) throws IOException {
-        int i = 0;
         for (AnimatedTextureBuilder builder : data) {
-            Path target = generator.getOutputFolder().resolve(modid).resolve("textures").resolve(builder.path + ".png.mcmeta");
+            Path target = generator.getOutputFolder().resolve("assets").resolve(modid).resolve("textures").resolve(builder.path + ".png.mcmeta");
             DataProvider.saveStable(cache, builder.toJson(), target);
         }
     }

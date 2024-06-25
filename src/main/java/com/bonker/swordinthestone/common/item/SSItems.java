@@ -1,11 +1,13 @@
 package com.bonker.swordinthestone.common.item;
 
 import com.bonker.swordinthestone.SwordInTheStone;
+import com.bonker.swordinthestone.common.SSConfig;
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.bonker.swordinthestone.common.ability.SwordAbility;
+import com.bonker.swordinthestone.util.AbilityUtil;
+import com.bonker.swordinthestone.util.Util;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -26,7 +28,7 @@ public class SSItems {
     public static final CreativeModeTab TAB = new CreativeModeTab("swordinthestone.unique_swords") {
         @Override
         public ItemStack makeIcon() {
-            return new ItemStack(SSItems.FOREST_SWORD.get());
+            return new ItemStack(FOREST_SWORD.get());
         }
 
         @Override
@@ -35,13 +37,18 @@ public class SSItems {
         }
 
         @Override
-        public void fillItemList(NonNullList<ItemStack> pItems) {
+        public void fillItemList(NonNullList<ItemStack> items) {
+            float damage = SSConfig.BASE_DAMAGE.get() - 1 + Util.constrictToMultiple(0.5F * SSConfig.MAX_DAMAGE_MODIFIER.get().floatValue(), 0.5F);
+            float speed = SSConfig.BASE_SPEED.get().floatValue() + Util.constrictToMultiple(0.5F * SSConfig.MAX_SPEED_MODIFIER.get().floatValue(), 0.5F);
+
             for (RegistryObject<Item> item : SSItems.ITEMS.getEntries()) {
                 if (item.get() instanceof UniqueSwordItem sword) {
                     for (RegistryObject<SwordAbility> ability : SwordAbilities.SWORD_ABILITIES.getEntries()) {
                         ItemStack stack = new ItemStack(sword);
-                        stack.getOrCreateTag().putString("ability", ability.getId().toString());
-                        pItems.add(stack);
+                        AbilityUtil.setSwordAbility(stack, ability.get());
+                        stack.getOrCreateTag().putFloat(UniqueSwordItem.DAMAGE_TAG, damage);
+                        stack.getOrCreateTag().putFloat(UniqueSwordItem.SPEED_TAG, speed);
+                        items.add(stack);
                     }
                 }
             }
@@ -49,7 +56,7 @@ public class SSItems {
     };
 
     private static RegistryObject<UniqueSwordItem> swordVariant(String name, int color) {
-        SwordInTheStone.SWORD_MODEL_MAP.put(new ResourceLocation(SwordInTheStone.MODID, name), new ResourceLocation(SwordInTheStone.MODID, "item/sword/" + name));
+        SwordInTheStone.SWORD_MODEL_MAP.put(Util.makeResource(name), Util.makeResource("item/sword/" + name));
         return ITEMS.register(name, () -> new UniqueSwordItem(color, new Item.Properties().tab(TAB)));
     }
 }
