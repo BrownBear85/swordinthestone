@@ -1,7 +1,6 @@
 package com.bonker.swordinthestone.datagen;
 
 import net.minecraft.data.DataGenerator;
-import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,14 +14,13 @@ public class SSDatagen {
     public static void gatherData(final GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
-        PackOutput packOutput = generator.getPackOutput();
 
-        SSLanguageProvider languageProvider = new SSLanguageProvider(packOutput, MODID, "en_us");
-        SSAnimatedTextureProvider animatedTextureProvider = new SSAnimatedTextureProvider(packOutput, MODID);
-        SSBlockStateProvider blockStateProvider = new SSBlockStateProvider(packOutput, MODID, existingFileHelper);
+        SSLanguageProvider languageProvider = new SSLanguageProvider(generator, MODID, "en_us");
+        SSAnimatedTextureProvider animatedTextureProvider = new SSAnimatedTextureProvider(generator, MODID);
+        SSBlockStateProvider blockStateProvider = new SSBlockStateProvider(generator, MODID, existingFileHelper);
 
-        generator.addProvider(true, new SSItemModelProvider(packOutput, MODID, existingFileHelper, languageProvider, animatedTextureProvider, blockStateProvider));
-        generator.addProvider(true, new SSSoundProvider(packOutput, MODID, existingFileHelper, languageProvider));
+        generator.addProvider(true, new SSItemModelProvider(generator, MODID, existingFileHelper, languageProvider, animatedTextureProvider, blockStateProvider));
+        generator.addProvider(true, new SSSoundProvider(generator, MODID, existingFileHelper, languageProvider));
         generator.addProvider(true, languageProvider);
         generator.addProvider(true, animatedTextureProvider);
         generator.addProvider(true, blockStateProvider);

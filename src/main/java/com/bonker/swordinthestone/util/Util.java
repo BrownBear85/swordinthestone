@@ -68,7 +68,7 @@ public class Util {
     }
 
     public static List<MobEffectInstance> copyWithDuration(List<MobEffectInstance> effects, Int2IntFunction durationMapper) {
-        return effects.stream().map(effect -> new MobEffectInstance(effect.getEffect(), effect.mapDuration(durationMapper), effect.getAmplifier())).toList();
+        return effects.stream().map(effect -> new MobEffectInstance(effect.getEffect(), durationMapper.apply(effect.getDuration()), effect.getAmplifier())).toList();
     }
 
     public static List<BlockPos> betweenClosed(BlockPos firstPos, BlockPos secondPos) {

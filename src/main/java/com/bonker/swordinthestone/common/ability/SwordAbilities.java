@@ -17,8 +17,8 @@ import com.bonker.swordinthestone.util.Util;
 import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
@@ -29,6 +29,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -72,15 +73,15 @@ public class SwordAbilities {
                         level.sendParticles(ParticleTypes.ELECTRIC_SPARK, victim.getX(), victim.getY() + 1.0, victim.getZ(), 20, 0.7, 1, 0.7, 0.4);
                         level.playSound(null, holder.getX(), holder.getY(), holder.getZ(), SSSounds.ZAP.get(), SoundSource.PLAYERS, 2.0F, 2.0F - charge * 0.5F);
                         if (++charge > SSConfig.THUNDER_SMITE_CHARGES.get()) {
-                            LightningBolt bolt = EntityType.LIGHTNING_BOLT.spawn(level, null, entity -> {
-                                entity.setVisualOnly(true);
-                                if (holder instanceof ServerPlayer serverPlayer) entity.setCause(serverPlayer);
-                            }, victim.blockPosition(), MobSpawnType.MOB_SUMMONED, false, false);
+                            LightningBolt bolt = EntityType.LIGHTNING_BOLT.spawn(level, null, null, null, victim.blockPosition(), MobSpawnType.MOB_SUMMONED, false, false);
                             if (bolt != null) {
+                                bolt.setVisualOnly(true);
+                                if (holder instanceof ServerPlayer serverPlayer) bolt.setCause(serverPlayer);
                                 List<Entity> list = level.getEntities(bolt, new AABB(bolt.getX() - 3.0D, bolt.getY() - 3.0D, bolt.getZ() - 3.0D, bolt.getX() + 3.0D, bolt.getY() + 6.0D + 3.0D, bolt.getZ() + 3.0D), Entity::isAlive);
                                 for (Entity entity : list) {
                                     if (entity == holder) continue;
-                                    if (!ForgeEventFactory.onEntityStruckByLightning(entity, bolt)) entity.thunderHit(level, bolt);
+                                    if (!ForgeEventFactory.onEntityStruckByLightning(entity, bolt))
+                                        entity.thunderHit(level, bolt);
                                 }
                             }
                             charge = 0;
@@ -204,8 +205,8 @@ public class SwordAbilities {
                     .build());
 
     // Alchemist
-    public static final TagKey<Potion> ALCHEMIST_SELF_EFFECTS = Util.makeTag(Registries.POTION, "alchemist_self");
-    public static final TagKey<Potion> ALCHEMIST_VICTIM_EFFECTS = Util.makeTag(Registries.POTION, "alchemist_victim");
+    public static final TagKey<Potion> ALCHEMIST_SELF_EFFECTS = Util.makeTag(Registry.POTION_REGISTRY, "alchemist_self");
+    public static final TagKey<Potion> ALCHEMIST_VICTIM_EFFECTS = Util.makeTag(Registry.POTION_REGISTRY, "alchemist_victim");
     public static final RegistryObject<SwordAbility> ALCHEMIST = register("alchemist",
             () -> new SwordAbilityBuilder(0xffbf47)
             .onHit((level, attacker, victim) -> {
@@ -225,7 +226,7 @@ public class SwordAbilities {
         float chance = (victim == null ? SSConfig.ALCHEMIST_SELF_CHANCE : SSConfig.ALCHEMIST_VICTIM_CHANCE).get().floatValue();
         if (level.random.nextFloat() <= chance) {
             for (int tries = 0; tries < 3; tries++) {
-                Optional<Holder<Potion>> optional = level.registryAccess().registryOrThrow(Registries.POTION)
+                Optional<Holder<Potion>> optional = level.registryAccess().registryOrThrow(Registry.POTION_REGISTRY)
                         .getOrCreateTag(victim == null ? ALCHEMIST_SELF_EFFECTS : ALCHEMIST_VICTIM_EFFECTS)
                         .getRandomElement(level.random);
 
@@ -299,12 +300,13 @@ public class SwordAbilities {
                     BatSwarmGoal.BatSwarm swarm = new BatSwarmGoal.BatSwarm(player);
                     for (int i = 0; i < 15; i++) {
                         boolean isLeader = i == 0;
-                        Bat entity = EntityType.BAT.spawn((ServerLevel) level, null, bat -> {
+                        Bat bat = EntityType.BAT.spawn((ServerLevel) level, null, null, null, BlockPos.ZERO, MobSpawnType.COMMAND,false, false);
+                        if (bat != null) {
                             bat.setPos(pos.add(Util.relativeVec(player.getRotationVector(), 0, (level.random.nextFloat() - 0.5) * 2 - 1, (level.random.nextFloat() - 0.5) * 2)));
                             bat.setCustomName(Component.translatable("ability.swordinthestone.bat_swarm.name", player.getDisplayName(), Component.translatable(bat.getType().getDescriptionId())).withStyle(SwordAbilities.BAT_SWARM.get().getColorStyle()));
                             bat.goalSelector.addGoal(0, new BatSwarmGoal(bat, swarm, isLeader));
-                        }, BlockPos.ZERO, MobSpawnType.COMMAND,false, false);
-                        if (isLeader && entity != null) player.startRiding(entity);
+                            if (isLeader) player.startRiding(bat);
+                        }
                     }
                 }
 
@@ -345,7 +347,7 @@ public class SwordAbilities {
                                         double percentDistance = (10 - entity.distanceTo(player)) / 10F;
                                         double scale = percentCharge * percentDistance;
 
-                                        entity.hurt(level.damageSources().playerAttack(player), SSConfig.VORTEX_CHARGE_DAMAGE.get().floatValue() * (float) scale);
+                                        entity.hurt(DamageSource.playerAttack(player), SSConfig.VORTEX_CHARGE_DAMAGE.get().floatValue() * (float) scale);
 
                                         Vec3 delta = entity.position()
                                                 .subtract(player.position())

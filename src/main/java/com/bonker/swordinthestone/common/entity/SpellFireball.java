@@ -12,11 +12,13 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -57,8 +59,8 @@ public class SpellFireball extends Fireball {
             addPower(chargeRate * 2);
         } else if (getPower() <= maxPower) {
             addPower(chargeRate);
-        } else if (!level().isClientSide) {
-            ((ServerLevel) level()).sendParticles(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 8, 0, 0, 0, 0.1F);
+        } else if (!getLevel().isClientSide) {
+            ((ServerLevel) getLevel()).sendParticles(ParticleTypes.SMOKE, getX(), getY() + 0.5, getZ(), 8, 0, 0, 0, 0.1F);
         }
 
         if (!beenShot && getEntityData().get(DATA_SHOT)) {
@@ -77,7 +79,7 @@ public class SpellFireball extends Fireball {
     @Override
     protected void onHit(HitResult pResult) {
         super.onHit(pResult);
-        if (!level().isClientSide) {
+        if (!getLevel().isClientSide) {
             // make owner invulnerable to damage until after the explosion damage is processed
             Entity owner = getOwner();
             boolean isInvulnerable = false;
@@ -86,13 +88,13 @@ public class SpellFireball extends Fireball {
                 if (!isInvulnerable) owner.setInvulnerable(true);
             }
 
-            level().explode(this, getX(), getY() + 0.5, getZ(), getPower(), SSConfig.FIREBALL_SET_FIRE.get(), SSConfig.FIREBALL_DESTROY_BLOCKS.get() ? Level.ExplosionInteraction.BLOCK : Level.ExplosionInteraction.NONE);
+            getLevel().explode(this, getX(), getY() + 0.5, getZ(), getPower(), SSConfig.FIREBALL_SET_FIRE.get(), SSConfig.FIREBALL_DESTROY_BLOCKS.get() ? Explosion.BlockInteraction.DESTROY : Explosion.BlockInteraction.NONE);
 
             // remove owner invulnerability
             if (owner != null && !isInvulnerable) owner.setInvulnerable(false);
 
             double radius = Math.min(1, getPower());
-            ((ServerLevel) level()).sendParticles(SSParticles.FIRE.get(), getX(), getY(), getZ(), Mth.floor(radius * 25F), radius, radius, radius, 0F);
+            ((ServerLevel) getLevel()).sendParticles(SSParticles.FIRE.get(), getX(), getY(), getZ(), Mth.floor(radius * 25F), radius, radius, radius, 0F);
             discard();
         }
     }
@@ -100,13 +102,13 @@ public class SpellFireball extends Fireball {
     @Override
     protected void onHitEntity(EntityHitResult pResult) {
         super.onHitEntity(pResult);
-        if (!level().isClientSide) {
+        if (!getLevel().isClientSide) {
             Entity entity = pResult.getEntity();
             if (entity instanceof EnderMan) {
                 return;
             }
             Entity owner = getOwner();
-            entity.hurt(damageSources().fireball(this, owner), 6.0F * getPower());
+            entity.hurt(DamageSource.fireball(this, owner), 6.0F * getPower());
             if (owner instanceof LivingEntity) {
                 doEnchantDamageEffects((LivingEntity) owner, entity);
             }

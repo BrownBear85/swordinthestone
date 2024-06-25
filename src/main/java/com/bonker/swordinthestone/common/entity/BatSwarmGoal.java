@@ -6,6 +6,7 @@ import com.bonker.swordinthestone.common.networking.SSNetworking;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -43,7 +44,7 @@ public class BatSwarmGoal extends Goal {
 
     @Override
     public void stop() {
-        if (bat.level() instanceof ServerLevel serverLevel) {
+        if (bat.getLevel() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.SMOKE, bat.getX(), bat.getY(), bat.getZ(), 10, 0.2, 0.2, 0.2, 0.1);
             bat.discard();
         }
@@ -62,10 +63,10 @@ public class BatSwarmGoal extends Goal {
         bat.setXRot(swarm.xRot);
         bat.setYRot(swarm.yRot);
 
-        bat.level().getEntities(bat, bat.getBoundingBox().inflate(0.5), entity -> !(entity instanceof Bat)).forEach(entity -> {
+        bat.getLevel().getEntities(bat, bat.getBoundingBox().inflate(0.5), entity -> !(entity instanceof Bat)).forEach(entity -> {
             if (entity != swarm.owner && entity instanceof LivingEntity livingEntity) {
                 livingEntity.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 100));
-                entity.hurt(livingEntity.level().damageSources().mobAttack(bat), SSConfig.BAT_SWARM_DAMAGE.get().floatValue());
+                entity.hurt(DamageSource.mobAttack(bat), SSConfig.BAT_SWARM_DAMAGE.get().floatValue());
                 entity.setDeltaMovement(swarm.hitDelta);
                 if (entity instanceof ServerPlayer player) {
                     SSNetworking.sendToPlayer(new ClientboundSyncDeltaPacket(entity.getDeltaMovement()), player);
@@ -78,7 +79,7 @@ public class BatSwarmGoal extends Goal {
         bat.setDeltaMovement(swarm.delta);
         bat.move(MoverType.SELF, bat.getDeltaMovement());
 
-        if (bat.level() instanceof ServerLevel serverLevel) {
+        if (bat.getLevel() instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.ASH, bat.getX(), bat.getY(), bat.getZ(), 1, 0, 0, 0, 0);
 
             if ((ticks > 2 && !isMoving()) || ticks > lifetime) {

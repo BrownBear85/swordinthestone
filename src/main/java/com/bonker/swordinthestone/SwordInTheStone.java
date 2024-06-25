@@ -40,7 +40,6 @@ public class SwordInTheStone {
         SSBlocks.BLOCKS.register(bus);
         SSBlockEntities.BLOCK_ENTITIES.register(bus);
         SSItems.ITEMS.register(bus);
-        SSItems.TABS.register(bus);
         SSSounds.SOUND_EVENTS.register(bus);
         SSParticles.PARTICLE_TYPES.register(bus);
         SSEntityTypes.ENTITY_TYPES.register(bus);

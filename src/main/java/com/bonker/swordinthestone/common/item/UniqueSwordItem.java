@@ -106,7 +106,7 @@ public class UniqueSwordItem extends SwordItem {
     @Override
     public boolean hurtEnemy(ItemStack pStack, LivingEntity pTarget, LivingEntity pAttacker) {
         SwordAbility ability = AbilityUtil.getSwordAbility(pAttacker);
-        if (pAttacker.level() instanceof ServerLevel serverLevel) {
+        if (pAttacker.getLevel() instanceof ServerLevel serverLevel) {
             ability.hit(serverLevel, pAttacker, pTarget);
             if (pTarget.isDeadOrDying()) {
                 ability.kill(serverLevel, pAttacker, pTarget);
@@ -145,8 +145,8 @@ public class UniqueSwordItem extends SwordItem {
     }
 
     @Override
-    public void onStopUsing(ItemStack stack, LivingEntity entity, int useTime) {
-        AbilityUtil.getSwordAbility(stack).releaseUsing(stack, entity.level(), entity, useTime);
+    public void releaseUsing(ItemStack pStack, Level pLevel, LivingEntity pLivingEntity, int pTimeCharged) {
+        AbilityUtil.getSwordAbility(pStack).releaseUsing(pStack, pLevel, pLivingEntity, pTimeCharged);
     }
 
     @Override

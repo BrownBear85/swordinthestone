@@ -108,7 +108,7 @@ public class SSConfig {
         DISABLED_ABILITIES = COMMON_BUILDER
                 .comment("Add the ids of sword abilities here to disabled them. Ex. \"swordinthestone:thunder_smite\"")
                 .translation("swordinthestone.configgui.disabledAbilities")
-                .defineListAllowEmpty("disabledAbilities", List.of(), obj ->
+                .defineList("disabledAbilities", List.of(), obj ->
                         obj instanceof String str &&
                                 ResourceLocation.isValidResourceLocation(str) &&
                                 SwordAbilities.SWORD_ABILITY_REGISTRY.get().containsKey(new ResourceLocation(str)));

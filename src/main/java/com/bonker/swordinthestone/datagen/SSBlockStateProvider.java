@@ -2,7 +2,7 @@ package com.bonker.swordinthestone.datagen;
 
 import com.bonker.swordinthestone.common.block.SSBlocks;
 import com.bonker.swordinthestone.common.block.SwordStoneBlock;
-import net.minecraft.data.PackOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
 import net.minecraftforge.client.model.generators.ConfiguredModel;
 import net.minecraftforge.client.model.generators.ModelFile;
@@ -14,8 +14,8 @@ import java.util.Map;
 public class SSBlockStateProvider extends BlockStateProvider {
     final Map<String, ModelFile> swordStoneVariants = new HashMap<>();
 
-    public SSBlockStateProvider(PackOutput output, String modid, ExistingFileHelper exFileHelper) {
-        super(output, modid, exFileHelper);
+    public SSBlockStateProvider(DataGenerator generator, String modid, ExistingFileHelper exFileHelper) {
+        super(generator, modid, exFileHelper);
     }
 
     @Override

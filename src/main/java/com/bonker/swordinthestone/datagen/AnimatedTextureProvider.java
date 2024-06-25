@@ -4,41 +4,38 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
-import net.minecraft.data.PackOutput;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public abstract class AnimatedTextureProvider implements DataProvider {
-    private final PackOutput packOutput;
     private final String modid;
     private final List<AnimatedTextureBuilder> data = new ArrayList<>();
+    private final DataGenerator generator;
 
-    public AnimatedTextureProvider(PackOutput packOutput, String modid) {
-        this.packOutput = packOutput;
+    public AnimatedTextureProvider(DataGenerator generator, String modid) {
+        this.generator = generator;
         this.modid = modid;
     }
 
     protected abstract void addFiles();
 
     @Override
-    public CompletableFuture<?> run(CachedOutput pOutput) {
+    public void run(CachedOutput pOutput) throws IOException {
         addFiles();
-        return generateAll(pOutput);
+        generateAll(pOutput);
     }
 
-    protected CompletableFuture<?> generateAll(CachedOutput cache) {
-        CompletableFuture<?>[] futures = new CompletableFuture<?>[data.size()];
-        int i = 0;
+    protected void generateAll(CachedOutput cache) throws IOException {
         for (AnimatedTextureBuilder builder : data) {
-            Path target = packOutput.getOutputFolder(PackOutput.Target.RESOURCE_PACK).resolve(modid).resolve("textures").resolve(builder.path + ".png.mcmeta");
-            futures[i++] = DataProvider.saveStable(cache, builder.toJson(), target);
+            Path target = generator.getOutputFolder().resolve("assets").resolve(modid).resolve("textures").resolve(builder.path + ".png.mcmeta");
+            DataProvider.saveStable(cache, builder.toJson(), target);
         }
-        return CompletableFuture.allOf(futures);
     }
 
     @Override

@@ -43,7 +43,7 @@ public class VortexParticle extends TextureSheetParticle {
 
     @Override
     public int getLightColor(float pPartialTick) {
-        BlockPos pos = BlockPos.containing(this.x, this.y, this.z);
+        BlockPos pos = new BlockPos(this.x, this.y, this.z);
         return level.hasChunkAt(pos) ? LevelRenderer.getLightColor(level, pos) : 0;
     }
 

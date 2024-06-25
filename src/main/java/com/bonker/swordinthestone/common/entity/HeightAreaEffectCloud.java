@@ -2,6 +2,7 @@ package com.bonker.swordinthestone.common.entity;
 
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.google.common.collect.Lists;
+import com.mojang.math.Vector3f;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -14,7 +15,6 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
-import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -53,7 +53,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
 
         boolean waiting = isWaiting();
         float radius = getRadius();
-        if (level().isClientSide) {
+        if (getLevel().isClientSide) {
             if (waiting) {
                 return;
             }
@@ -82,7 +82,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                     zd = (0.5D - random.nextDouble()) * 0.15D;
                 }
 
-                level().addAlwaysVisibleParticle(particle, x, y, z, xd, yd, zd);
+                getLevel().addAlwaysVisibleParticle(particle, x, y, z, xd, yd, zd);
             }
         } else {
             if (tickCount >= waitTime + duration) {
@@ -114,14 +114,14 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                 List<MobEffectInstance> effects = Lists.newArrayList();
 
                 for (MobEffectInstance effect : potion.getEffects()) {
-                    effects.add(new MobEffectInstance(effect.getEffect(), effect.mapDuration(i -> i / 4), effect.getAmplifier(), effect.isAmbient(), effect.isVisible()));
+                    effects.add(new MobEffectInstance(effect.getEffect(), effect.getDuration() / 4, effect.getAmplifier(), effect.isAmbient(), effect.isVisible()));
                 }
 
                 effects.addAll(this.effects);
                 if (effects.isEmpty()) {
                     victims.clear();
                 } else {
-                    List<LivingEntity> entities = level().getEntitiesOfClass(LivingEntity.class, getBoundingBox());
+                    List<LivingEntity> entities = getLevel().getEntitiesOfClass(LivingEntity.class, getBoundingBox());
                     if (!entities.isEmpty()) {
                         for (LivingEntity entity : entities) {
                             if (!victims.containsKey(entity) && entity.isAffectedByPotions()) {

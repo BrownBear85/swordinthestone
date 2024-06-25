@@ -152,7 +152,7 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
                         SSNetworking.sendToClientsLoadingBE(new ClientboundSyncSwordStoneDataPacket(blockPos, false, (short) 0), entity);
                     }
                 } else if (entity.idleTicks == 75) {
-                    level.playLocalSound(entity.getBlockPos(), SSSounds.LASER.get(), SoundSource.BLOCKS, 4.5F, 0.6F + level.random.nextFloat() * 0.8F, false);
+                    level.playSound(null, entity.getBlockPos(), SSSounds.LASER.get(), SoundSource.BLOCKS, 4.5F, 0.6F + level.random.nextFloat() * 0.8F);
                 }
             } else {
                 entity.idleTicks = 0;

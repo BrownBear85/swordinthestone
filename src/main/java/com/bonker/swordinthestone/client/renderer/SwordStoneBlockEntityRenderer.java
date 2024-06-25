@@ -3,8 +3,9 @@ package com.bonker.swordinthestone.client.renderer;
 import com.bonker.swordinthestone.common.block.entity.SwordStoneMasterBlockEntity;
 import com.bonker.swordinthestone.util.Util;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.blockentity.BeaconRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -12,7 +13,6 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.phys.Vec3;
 
 public class SwordStoneBlockEntityRenderer implements BlockEntityRenderer<SwordStoneMasterBlockEntity> {
@@ -58,11 +58,13 @@ public class SwordStoneBlockEntityRenderer implements BlockEntityRenderer<SwordS
         float tilt = direction * 3.5F * Mth.sin(animationTick) * entity.progress / (10 + animationTick * animationTick);
 
         poseStack.translate(entity.centerXOffset(), 1.6, entity.centerZOffset()); // center the item
-        poseStack.mulPose(Axis.YP.rotationDegrees(Mth.wrapDegrees(yRot))); // spinning angle
-        poseStack.rotateAround(Axis.ZP.rotationDegrees(tilt), 0, -0.7F, 0); // shaking tilt
-        poseStack.mulPose(Axis.ZP.rotationDegrees(-45F)); // sword sits upright
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(Mth.wrapDegrees(yRot))); // spinning angle
+        poseStack.translate(0, -0.7F, 0);
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(tilt)); // shaking tilt
+        poseStack.translate(0, 0.7F, 0);
+        poseStack.mulPose(Vector3f.ZP.rotationDegrees(-45F)); // sword sits upright
 
-        itemRenderer.renderStatic(entity.getItem(), ItemDisplayContext.FIXED, packedLight, packedOverlay, poseStack, bufferSource, entity.getLevel(), 42);
+        itemRenderer.renderStatic(entity.getItem(), ItemTransforms.TransformType.FIXED, packedLight, packedOverlay, poseStack, bufferSource, 42);
     }
 
     private float beaconX(SwordStoneMasterBlockEntity entity) {

@@ -27,7 +27,7 @@ public class ServerboundEnderRiftPacket extends ClientboundEnderRiftPacket {
     public void handle(Supplier<NetworkEvent.Context> contextSupplier) {
         ServerPlayer player = contextSupplier.get().getSender();
         if (player == null) return;
-        ServerLevel level = player.serverLevel();
+        ServerLevel level = player.getLevel();
 
         Entity entity = level.getEntity(entityId);
         if (entity == null || entity.getType() != SSEntityTypes.ENDER_RIFT.get()) return;

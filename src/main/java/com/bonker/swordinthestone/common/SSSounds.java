@@ -28,6 +28,6 @@ public class SSSounds {
 
 
     private static RegistryObject<SoundEvent> register(String name) {
-        return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(Util.makeResource(name)));
+        return SOUND_EVENTS.register(name, () -> new SoundEvent(Util.makeResource(name)));
     }
 }

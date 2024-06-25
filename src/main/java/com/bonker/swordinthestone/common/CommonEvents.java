@@ -26,7 +26,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -68,7 +67,7 @@ public class CommonEvents {
 
             if (event.getEntity() instanceof ServerPlayer player) {
                 player.getCapability(DashCapability.DASH).ifPresent(cap -> {
-                    if (DashCapability.getTicks(player) > 0 && event.getSource().is(DamageTypes.MOB_ATTACK)) event.setCanceled(true);
+                    if (DashCapability.getTicks(player) > 0 && event.getSource().getMsgId().equals("mob")) event.setCanceled(true);
                 });
             }
         }
@@ -94,11 +93,11 @@ public class CommonEvents {
                 if (player.getDeltaMovement().lengthSqr() < 0.01) dashTicks = 0;
 
                 if (event.side == LogicalSide.SERVER && dashTicks > 0) {
-                    HeightAreaEffectCloud.createToxicDashCloud(player.level(), player, player.getX(), player.getY() - 0.5, player.getZ());
+                    HeightAreaEffectCloud.createToxicDashCloud(player.getLevel(), player, player.getX(), player.getY() - 0.5, player.getZ());
                 }
 
                 if (dashTicks > 0 && event.side == LogicalSide.CLIENT) {
-                    player.level().getEntities(player, player.getBoundingBox().inflate(0.5)).forEach(entity -> {
+                    player.getLevel().getEntities(player, player.getBoundingBox().inflate(0.5)).forEach(entity -> {
                         if (entity instanceof LivingEntity && !cap.isDashed(entity)) {
                             cap.addToDashed(entity);
                             SSNetworking.sendToServer(new ServerboundDashAttackPacket(entity.getId()));
@@ -110,10 +109,10 @@ public class CommonEvents {
             });
 
             if (player.getVehicle() == null || !SSConfig.DOUBLE_JUMP_VEHICLE.get()) {
-                if (player.onGround()) {
+                if (player.isOnGround()) {
                     player.getCapability(ExtraJumpsCapability.JUMPS).ifPresent(IExtraJumpsCapability::resetExtraJumps);
                 }
-            } else if ((player.getVehicle().onGround() || player.getVehicle().getBlockStateOn().is(Blocks.WATER)) && player.level().getGameTime() % 5 == 0) {
+            } else if ((player.getVehicle().isOnGround() || player.getVehicle().getBlockStateOn().is(Blocks.WATER)) && player.getLevel().getGameTime() % 5 == 0) {
                 player.getCapability(ExtraJumpsCapability.JUMPS).ifPresent(IExtraJumpsCapability::resetExtraJumps);
             }
         }
@@ -121,7 +120,7 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onLivingDeath(final LivingDeathEvent event) {
             if (event.getEntity() instanceof ServerPlayer player) {
-                Util.getOwnedProjectiles(player, EnderRift.class, player.serverLevel()).forEach(Entity::discard);
+                Util.getOwnedProjectiles(player, EnderRift.class, player.getLevel()).forEach(Entity::discard);
             }
         }
 
@@ -132,9 +131,9 @@ public class CommonEvents {
                 if (distance >= 3) {
                     if (distance <= 7) event.getEntity().playSound(SoundEvents.GENERIC_SMALL_FALL, 0.5F, 1.0F);
 
-                    event.getEntity().playSound(SSSounds.LAND.get(), 0.3F, 0.6F + event.getEntity().level().random.nextFloat() * 0.8F);
+                    event.getEntity().playSound(SSSounds.LAND.get(), 0.3F, 0.6F + event.getEntity().getLevel().random.nextFloat() * 0.8F);
 
-                    if (event.getEntity().level() instanceof ServerLevel serverLevel) {
+                    if (event.getEntity().getLevel() instanceof ServerLevel serverLevel) {
                         serverLevel.sendParticles(SSParticles.AIR.get(), event.getEntity().getX(), event.getEntity().getY() + 0.1, event.getEntity().getZ(), 20, 0.5, 0.1, 0.5, 0.05);
                     }
                 }
@@ -147,9 +146,9 @@ public class CommonEvents {
         @SubscribeEvent
         public static void onDoubleJump(final DoubleJumpEvent event) {
             Vec3 pos = event.getEntity().position();
-            ServerLevel level = (ServerLevel) event.getEntity().level();
+            ServerLevel level = (ServerLevel) event.getEntity().getLevel();
             level.sendParticles(SSParticles.AIR.get(), pos.x, pos.y, pos.z, 20, 0.5, 0.1, 0.5, 0.05);
-            level.playSound(null, pos.x, pos.y, pos.z, SSSounds.JUMP.get(), SoundSource.PLAYERS, 0.7F, 0.8F + event.getEntity().level().random.nextFloat() * 0.4F);
+            level.playSound(null, pos.x, pos.y, pos.z, SSSounds.JUMP.get(), SoundSource.PLAYERS, 0.7F, 0.8F + event.getEntity().getLevel().random.nextFloat() * 0.4F);
         }
 
         @SubscribeEvent
