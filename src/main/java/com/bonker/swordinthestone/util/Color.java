@@ -2,7 +2,7 @@ package com.bonker.swordinthestone.util;
 
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.FastColor;
-import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 
 import javax.annotation.Nullable;
 

@@ -1,21 +1,19 @@
 package com.bonker.swordinthestone.common.ability;
 
 import com.bonker.swordinthestone.util.AbilityUtil;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -30,7 +28,7 @@ public class SwordAbilityBuilder {
     private ReleaseAction onRelease;
     private Function<ItemStack, Integer> useDuration;
     private Function<ItemStack, UseAnim> useAnim;
-    private Multimap<Attribute, AttributeModifier> attributes;
+    private Consumer<ItemAttributeModifiers.Builder> attributes;
 
     public SwordAbilityBuilder(int color) {
         this.color = color;
@@ -82,7 +80,7 @@ public class SwordAbilityBuilder {
         return this;
     }
 
-    public SwordAbilityBuilder attributes(Multimap<Attribute, AttributeModifier> attributes) {
+    public SwordAbilityBuilder attributes(Consumer<ItemAttributeModifiers.Builder> attributes) {
         this.attributes = attributes;
         return this;
     }
@@ -107,14 +105,14 @@ public class SwordAbilityBuilder {
         private final ReleaseAction onRelease;
         private final Function<ItemStack, Integer> useDuration;
         private final Function<ItemStack, UseAnim> useAnim;
-        private final Multimap<Attribute, AttributeModifier> attributes;
+        private final Consumer<ItemAttributeModifiers.Builder> attributes;
 
         private SwordAbilityImpl(int color, @Nullable HitAction onHit, @Nullable HitAction onKill,
                                  @Nullable UseAction onUse, @Nullable UseTickAction onUseTick,
                                  @Nullable Function<ItemStack, Boolean> isCooldown, @Nullable Function<ItemStack, Float> getProgress,
                                  @Nullable TickAction inventoryTick, @Nullable ReleaseAction onRelease,
                                  @Nullable Function<ItemStack, Integer> useDuration, @Nullable Function<ItemStack, UseAnim> useAnim,
-                                 @Nullable Multimap<Attribute, AttributeModifier> attributes) {
+                                 @Nullable Consumer<ItemAttributeModifiers.Builder> attributes) {
             super(color);
             this.onHit = onHit;
             this.onKill = onKill;
@@ -185,9 +183,9 @@ public class SwordAbilityBuilder {
         }
 
         @Override
-        public void addAttributes(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder) {
+        public void addAttributes(ItemAttributeModifiers.Builder builder) {
             if (attributes != null) {
-                builder.putAll(attributes);
+                attributes.accept(builder);
             }
         }
     }

@@ -1,7 +1,6 @@
 package com.bonker.swordinthestone.common.block.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,9 +16,9 @@ public class SwordStoneDummyBlockEntity extends BlockEntity implements ISwordSto
     }
 
     @Override
-    public InteractionResult interact(Player pPlayer, InteractionHand pHand) {
+    public InteractionResult interact(Player pPlayer) {
         if (getMaster() != null) {
-            return getMaster().interact(pPlayer, pHand);
+            return getMaster().interact(pPlayer);
         } else return InteractionResult.PASS;
     }
 

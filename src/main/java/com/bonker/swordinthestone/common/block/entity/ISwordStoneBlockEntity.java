@@ -4,7 +4,6 @@ import com.bonker.swordinthestone.common.block.SwordStoneBlock;
 import com.bonker.swordinthestone.util.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ISwordStoneBlockEntity {
-    InteractionResult interact(Player pPlayer, InteractionHand pHand);
+    InteractionResult interact(Player pPlayer);
 
     @Nullable
     SwordStoneMasterBlockEntity getMaster();

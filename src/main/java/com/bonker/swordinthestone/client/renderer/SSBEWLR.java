@@ -1,6 +1,7 @@
 package com.bonker.swordinthestone.client.renderer;
 
 import com.bonker.swordinthestone.SwordInTheStone;
+import com.bonker.swordinthestone.common.item.SSDataComponents;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -12,12 +13,13 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.RenderTypeHelper;
-import net.minecraftforge.client.extensions.common.IClientItemExtensions;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.RenderTypeHelper;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+
 public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
     public static SSBEWLR INSTANCE;
     public static IClientItemExtensions extension() {return new IClientItemExtensions() {
@@ -33,8 +35,8 @@ public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
 
     @Override
     public void renderByItem(ItemStack pStack, ItemDisplayContext pDisplayContext, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, int pPackedOverlay) {
-        ResourceLocation swordModel = SwordInTheStone.SWORD_MODEL_MAP.get(ForgeRegistries.ITEMS.getKey(pStack.getItem()));
-        ResourceLocation abilityModel = SwordInTheStone.ABILITY_MODEL_MAP.get(pStack.getOrCreateTag().getString("ability"));
+        ModelResourceLocation swordModel = SwordInTheStone.SWORD_MODEL_MAP.get(BuiltInRegistries.ITEM.getKey(pStack.getItem()));
+        ModelResourceLocation abilityModel = SwordInTheStone.ABILITY_MODEL_MAP.get(pStack.get(SSDataComponents.ABILITY_COMPONENT));
 
         pPoseStack.popPose(); // remove translations from ItemRenderer
         pPoseStack.pushPose();
@@ -43,7 +45,7 @@ public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
         if (abilityModel != null) render(pStack, abilityModel, pDisplayContext, pPoseStack, pBuffer, RenderType.translucent(), pStack.hasFoil(), pPackedLight, pPackedOverlay);
     }
 
-    private static void render(ItemStack stack, ResourceLocation modelLoc, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource bufferSource, RenderType renderType, boolean glint, int packedLight, int packedOverlay) {
+    private static void render(ItemStack stack, ModelResourceLocation modelLoc, ItemDisplayContext displayContext, PoseStack poseStack, MultiBufferSource bufferSource, RenderType renderType, boolean glint, int packedLight, int packedOverlay) {
         poseStack.pushPose();
 
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();

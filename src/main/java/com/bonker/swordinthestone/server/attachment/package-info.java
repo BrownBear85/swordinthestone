@@ -1,6 +1,6 @@
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
-package com.bonker.swordinthestone.server.capability;
+package com.bonker.swordinthestone.server.attachment;
 
 import net.minecraft.MethodsReturnNonnullByDefault;
 

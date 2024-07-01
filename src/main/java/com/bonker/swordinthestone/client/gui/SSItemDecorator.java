@@ -4,7 +4,7 @@ import com.bonker.swordinthestone.common.ability.SwordAbility;
 import com.bonker.swordinthestone.util.AbilityUtil;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
-import net.minecraftforge.client.IItemDecorator;
+import net.neoforged.neoforge.client.IItemDecorator;
 
 public class SSItemDecorator {
     public static final IItemDecorator ITEM_DECORATOR = (guiGraphics, font, stack, xOffset, yOffset) -> {

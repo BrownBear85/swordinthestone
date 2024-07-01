@@ -5,7 +5,7 @@ import com.bonker.swordinthestone.common.ability.SwordAbility;
 import com.bonker.swordinthestone.common.entity.SSEntityTypes;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.data.LanguageProvider;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 public class SSLanguageProvider extends LanguageProvider {
     public SSLanguageProvider(PackOutput output, String modid, String locale) {
@@ -76,7 +76,7 @@ public class SSLanguageProvider extends LanguageProvider {
     }
 
     private void add(SwordAbility key, String name, String title, String description) {
-        ResourceLocation loc = SwordAbilities.SWORD_ABILITY_REGISTRY.get().getKey(key);
+        ResourceLocation loc = SwordAbilities.SWORD_ABILITY_REGISTRY.getKey(key);
         if (loc != null) {
             add("ability." + loc.getNamespace() + "." + loc.getPath(), name);
             add("ability." + loc.getNamespace() + "." + loc.getPath() + ".title", title);

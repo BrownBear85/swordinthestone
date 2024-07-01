@@ -13,28 +13,30 @@ import com.bonker.swordinthestone.common.block.entity.SSBlockEntities;
 import com.bonker.swordinthestone.common.entity.SSEntityTypes;
 import com.bonker.swordinthestone.common.item.SSItems;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
-import com.bonker.swordinthestone.common.networking.SSNetworking;
-import com.bonker.swordinthestone.common.networking.ServerboundExtraJumpPacket;
+import com.bonker.swordinthestone.common.networking.payloads.Play2ServerExtraJumpPayload;
 import com.bonker.swordinthestone.util.AbilityUtil;
 import com.bonker.swordinthestone.util.Color;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.*;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.*;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.registries.DeferredHolder;
 import org.lwjgl.glfw.GLFW;
 
+@SuppressWarnings("unused")
 public class ClientEvents {
     private static Minecraft minecraft;
 
-    @Mod.EventBusSubscriber(modid = SwordInTheStone.MODID, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = SwordInTheStone.MODID, value = Dist.CLIENT)
     public static class ForgeBus {
         @SubscribeEvent
         public static void onTooltipColors(final RenderTooltipEvent.Color event) {
@@ -55,13 +57,14 @@ public class ClientEvents {
             if (player != null &&
                     event.getAction() == GLFW.GLFW_PRESS &&
                     event.getKey() == minecraft.options.keyJump.getKey().getValue() &&
-                    !player.onGround() && !player.isFallFlying()) {
-                SSNetworking.sendToServer(new ServerboundExtraJumpPacket(player.input.left, player.input.right, player.input.up, player.input.down));
+                    !player.onGround() && !player.isFallFlying() &&
+                    AbilityUtil.isPassiveActive(player, SwordAbilities.DOUBLE_JUMP.get())) {
+                PacketDistributor.sendToServer(new Play2ServerExtraJumpPayload(player.input.left, player.input.right, player.input.up, player.input.down));
             }
         }
     }
 
-    @Mod.EventBusSubscriber(modid = SwordInTheStone.MODID, bus = Mod.EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+    @EventBusSubscriber(modid = SwordInTheStone.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
     public static class ModBus {
         @SubscribeEvent
         public static void onClientSetup(final FMLClientSetupEvent event) {
@@ -80,14 +83,13 @@ public class ClientEvents {
 
         @SubscribeEvent
         public static void onRegisterAdditionalModels(final ModelEvent.RegisterAdditional event) {
-            for (ResourceLocation ability : SwordAbilities.SWORD_ABILITY_REGISTRY.get().getKeys()) {
-                event.register(new ResourceLocation(ability.getNamespace(), "item/ability/" + ability.getPath()));
+            for (ResourceLocation ability : SwordAbilities.SWORD_ABILITY_REGISTRY.keySet()) {
+                event.register(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(ability.getNamespace(), "item/ability/" + ability.getPath())));
             }
-            for (RegistryObject<Item> regObj : SSItems.ITEMS.getEntries()) {
+            for (DeferredHolder<Item, ? extends Item> regObj : SSItems.ITEMS.getEntries()) {
                 if (!(regObj.get() instanceof UniqueSwordItem)) continue;
-                ResourceLocation loc = ForgeRegistries.ITEMS.getKey(regObj.get());
-                if (loc == null) continue;
-                event.register(new ResourceLocation(loc.getNamespace(), "item/sword/" + loc.getPath()));
+                ResourceLocation loc = BuiltInRegistries.ITEM.getKey(regObj.get());
+                event.register(ModelResourceLocation.standalone(ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), "item/sword/" + loc.getPath())));
             }
         }
 
@@ -100,7 +102,7 @@ public class ClientEvents {
         }
 
         @SubscribeEvent
-        public static void onRegisterGuiOverlays(final RegisterGuiOverlaysEvent event) {
+        public static void onRegisterGuiOverlays(final RegisterGuiLayersEvent event) {
             event.registerAboveAll(SSGuiOverlay.NAME, SSGuiOverlay.OVERLAY);
         }
     }

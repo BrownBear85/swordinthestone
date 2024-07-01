@@ -6,60 +6,60 @@ import com.bonker.swordinthestone.common.item.UniqueSwordItem;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.core.io.WritingMode;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.config.ModConfigEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.config.ModConfigEvent;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-@Mod.EventBusSubscriber(modid = SwordInTheStone.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = SwordInTheStone.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class SSConfig {
-    private static final ForgeConfigSpec.Builder COMMON_BUILDER = new ForgeConfigSpec.Builder();
-    public static final ForgeConfigSpec COMMON_CONFIG;
+    private static final ModConfigSpec.Builder COMMON_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec COMMON_CONFIG;
 
     // sword stats
-    public static final ForgeConfigSpec.IntValue BASE_DAMAGE;
-    public static final ForgeConfigSpec.DoubleValue MAX_DAMAGE_MODIFIER;
-    public static final ForgeConfigSpec.DoubleValue BASE_SPEED;
-    public static final ForgeConfigSpec.DoubleValue MAX_SPEED_MODIFIER;
-    public static final ForgeConfigSpec.IntValue DURABILITY;
+    public static final ModConfigSpec.IntValue BASE_DAMAGE;
+    public static final ModConfigSpec.DoubleValue MAX_DAMAGE_MODIFIER;
+    public static final ModConfigSpec.DoubleValue BASE_SPEED;
+    public static final ModConfigSpec.DoubleValue MAX_SPEED_MODIFIER;
+    public static final ModConfigSpec.IntValue DURABILITY;
 
     // sword stone
-    public static final ForgeConfigSpec.BooleanValue SWORD_BEACON_ENABLED;
-    private static final ForgeConfigSpec.ConfigValue<List<? extends String>> DISABLED_ABILITIES;
+    public static final ModConfigSpec.BooleanValue SWORD_BEACON_ENABLED;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> DISABLED_ABILITIES;
     public static final List<ResourceLocation> disabledAbilities = new ArrayList<>();
-    public static final ForgeConfigSpec.IntValue SWORD_STONE_SPACING_OVERWORLD;
-    public static final ForgeConfigSpec.IntValue SWORD_STONE_SEPARATION_OVERWORLD;
-    public static final ForgeConfigSpec.IntValue SWORD_STONE_SPACING_END;
-    public static final ForgeConfigSpec.IntValue SWORD_STONE_SEPARATION_END;
-    public static final ForgeConfigSpec.IntValue SWORD_STONE_SPACING_NETHER;
-    public static final ForgeConfigSpec.IntValue SWORD_STONE_SEPARATION_NETHER;
+    public static final ModConfigSpec.IntValue SWORD_STONE_SPACING_OVERWORLD;
+    public static final ModConfigSpec.IntValue SWORD_STONE_SEPARATION_OVERWORLD;
+    public static final ModConfigSpec.IntValue SWORD_STONE_SPACING_END;
+    public static final ModConfigSpec.IntValue SWORD_STONE_SEPARATION_END;
+    public static final ModConfigSpec.IntValue SWORD_STONE_SPACING_NETHER;
+    public static final ModConfigSpec.IntValue SWORD_STONE_SEPARATION_NETHER;
 
     // abilities
-    public static final ForgeConfigSpec.IntValue THUNDER_SMITE_CHARGES;
-    public static final ForgeConfigSpec.DoubleValue VAMPIRIC_HEALTH_PERCENT;
-    public static final ForgeConfigSpec.IntValue VAMPIRIC_HEALTH_CAP;
-    public static final ForgeConfigSpec.IntValue TOXIC_DASH_COOLDOWN;
-    public static final ForgeConfigSpec.IntValue ENDER_RIFT_COOLDOWN;
-    public static final ForgeConfigSpec.IntValue ENDER_RIFT_DURATION;
-    public static final ForgeConfigSpec.IntValue FIREBALL_COOLDOWN;
-    public static final ForgeConfigSpec.BooleanValue FIREBALL_DESTROY_BLOCKS;
-    public static final ForgeConfigSpec.BooleanValue FIREBALL_SET_FIRE;
-    public static final ForgeConfigSpec.DoubleValue FIREBALL_MAX_POWER;
-    public static final ForgeConfigSpec.DoubleValue FIREBALL_CHARGE_RATE;
-    public static final ForgeConfigSpec.BooleanValue DOUBLE_JUMP_VEHICLE;
-    public static final ForgeConfigSpec.DoubleValue ALCHEMIST_SELF_CHANCE;
-    public static final ForgeConfigSpec.DoubleValue ALCHEMIST_VICTIM_CHANCE;
-    public static final ForgeConfigSpec.IntValue BAT_SWARM_COOLDOWN;
-    public static final ForgeConfigSpec.IntValue BAT_SWARM_DURATION;
-    public static final ForgeConfigSpec.DoubleValue BAT_SWARM_DAMAGE;
-    public static final ForgeConfigSpec.IntValue VORTEX_CHARGE_CAPACITY;
-    public static final ForgeConfigSpec.IntValue VORTEX_CHARGE_PER_HIT;
-    public static final ForgeConfigSpec.DoubleValue VORTEX_CHARGE_DAMAGE;
+    public static final ModConfigSpec.IntValue THUNDER_SMITE_CHARGES;
+    public static final ModConfigSpec.DoubleValue VAMPIRIC_HEALTH_PERCENT;
+    public static final ModConfigSpec.IntValue VAMPIRIC_HEALTH_CAP;
+    public static final ModConfigSpec.IntValue TOXIC_DASH_COOLDOWN;
+    public static final ModConfigSpec.IntValue ENDER_RIFT_COOLDOWN;
+    public static final ModConfigSpec.IntValue ENDER_RIFT_DURATION;
+    public static final ModConfigSpec.IntValue FIREBALL_COOLDOWN;
+    public static final ModConfigSpec.BooleanValue FIREBALL_DESTROY_BLOCKS;
+    public static final ModConfigSpec.BooleanValue FIREBALL_SET_FIRE;
+    public static final ModConfigSpec.DoubleValue FIREBALL_MAX_POWER;
+    public static final ModConfigSpec.DoubleValue FIREBALL_CHARGE_RATE;
+    public static final ModConfigSpec.BooleanValue DOUBLE_JUMP_VEHICLE;
+    public static final ModConfigSpec.DoubleValue ALCHEMIST_SELF_CHANCE;
+    public static final ModConfigSpec.DoubleValue ALCHEMIST_VICTIM_CHANCE;
+    public static final ModConfigSpec.IntValue BAT_SWARM_COOLDOWN;
+    public static final ModConfigSpec.IntValue BAT_SWARM_DURATION;
+    public static final ModConfigSpec.DoubleValue BAT_SWARM_DAMAGE;
+    public static final ModConfigSpec.IntValue VORTEX_CHARGE_CAPACITY;
+    public static final ModConfigSpec.IntValue VORTEX_CHARGE_PER_HIT;
+    public static final ModConfigSpec.DoubleValue VORTEX_CHARGE_DAMAGE;
 
     static {
         // sword stats
@@ -108,10 +108,7 @@ public class SSConfig {
         DISABLED_ABILITIES = COMMON_BUILDER
                 .comment("Add the ids of sword abilities here to disabled them. Ex. \"swordinthestone:thunder_smite\"")
                 .translation("swordinthestone.configgui.disabledAbilities")
-                .defineListAllowEmpty("disabledAbilities", List.of(), obj ->
-                        obj instanceof String str &&
-                                ResourceLocation.isValidResourceLocation(str) &&
-                                SwordAbilities.SWORD_ABILITY_REGISTRY.get().containsKey(new ResourceLocation(str)));
+                .defineListAllowEmpty("disabledAbilities", List.of(), SSConfig::validateString);
 
         SWORD_STONE_SPACING_OVERWORLD = COMMON_BUILDER
                 .comment("The average distance (in chunks) between sword stones in the Overworld.")
@@ -258,6 +255,12 @@ public class SSConfig {
         COMMON_CONFIG = COMMON_BUILDER.build();
     }
 
+    private static boolean validateString(Object obj) {
+        return obj instanceof String str &&
+                ResourceLocation.read(str).isSuccess() &&
+                SwordAbilities.SWORD_ABILITY_REGISTRY.containsKey(ResourceLocation.parse(str));
+    }
+
     public static void load(Path path) {
         CommentedFileConfig configData = CommentedFileConfig.builder(path).sync().autosave().writingMode(WritingMode.REPLACE).build();
         configData.load();
@@ -267,18 +270,13 @@ public class SSConfig {
     public static void updateConfig(final ModConfigEvent event) {
         if (event.getConfig().getType() == ModConfig.Type.COMMON) {
             disabledAbilities.clear();
-            DISABLED_ABILITIES.get().stream().map(ResourceLocation::new).forEach(disabledAbilities::add);
+            DISABLED_ABILITIES.get().stream().map(ResourceLocation::parse).forEach(disabledAbilities::add);
             UniqueSwordItem.reloadAbilities();
         }
     }
 
     @SubscribeEvent
-    public static void onConfigLoaded(final ModConfigEvent.Loading event) {
-        updateConfig(event);
-    }
-
-    @SubscribeEvent
-    public static void onConfigReloaded(final ModConfigEvent.Reloading event) {
+    public static void onConfigLoaded(final ModConfigEvent event) {
         updateConfig(event);
     }
 }

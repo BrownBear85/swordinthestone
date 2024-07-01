@@ -1,8 +1,7 @@
 package com.bonker.swordinthestone.common.entity;
 
 import com.bonker.swordinthestone.common.SSConfig;
-import com.bonker.swordinthestone.common.networking.ClientboundSyncDeltaPacket;
-import com.bonker.swordinthestone.common.networking.SSNetworking;
+import com.bonker.swordinthestone.common.networking.payloads.Play2ClientDeltaPayload;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -14,6 +13,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ambient.Bat;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class BatSwarmGoal extends Goal {
     public static final String BAT_SWARM = "swordinthestone.bat_swarm";
@@ -68,7 +68,8 @@ public class BatSwarmGoal extends Goal {
                 entity.hurt(livingEntity.level().damageSources().mobAttack(bat), SSConfig.BAT_SWARM_DAMAGE.get().floatValue());
                 entity.setDeltaMovement(swarm.hitDelta);
                 if (entity instanceof ServerPlayer player) {
-                    SSNetworking.sendToPlayer(new ClientboundSyncDeltaPacket(entity.getDeltaMovement()), player);
+                    Vec3 delta = entity.getDeltaMovement();
+                    PacketDistributor.sendToPlayer(player, new Play2ClientDeltaPayload(delta.x(), delta.y(), delta.z(), -1));
                 }
             }
         });

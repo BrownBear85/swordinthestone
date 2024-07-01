@@ -1,8 +1,7 @@
 package com.bonker.swordinthestone.common.entity;
 
 import com.bonker.swordinthestone.common.SSConfig;
-import com.bonker.swordinthestone.common.networking.ClientboundEnderRiftPacket;
-import com.bonker.swordinthestone.common.networking.SSNetworking;
+import com.bonker.swordinthestone.common.networking.payloads.BidirectionalEnderRiftPayload;
 import com.bonker.swordinthestone.util.SideUtil;
 import com.bonker.swordinthestone.util.Util;
 import net.minecraft.core.particles.ParticleTypes;
@@ -19,13 +18,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.LinkedHashSet;
 
 public class EnderRift extends Projectile {
     public static final EntityDataAccessor<Boolean> DATA_CONTROLLING = SynchedEntityData.defineId(EnderRift.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Vec3> DATA_ANGLE = SynchedEntityData.defineId(EnderRift.class, Util.VEC3);
+    public static final EntityDataAccessor<Vector3f> DATA_ANGLE = SynchedEntityData.defineId(EnderRift.class, EntityDataSerializers.VECTOR3);
 
     private int age = 0;
     private final LinkedHashSet<Entity> entities = new LinkedHashSet<>();
@@ -44,7 +45,7 @@ public class EnderRift extends Projectile {
     public void tick() {
         super.tick();
 
-        if (++age >= SSConfig.ENDER_RIFT_DURATION.get()) {
+        if (!level().isClientSide && ++age >= SSConfig.ENDER_RIFT_DURATION.get()) {
             teleport();
         }
 
@@ -60,20 +61,30 @@ public class EnderRift extends Projectile {
         } else {
             move(MoverType.SELF, getDeltaMovement());
 
-            if (age % 5 == 0 && !level().isClientSide)
-                SSNetworking.sendToTrackingClients(new ClientboundEnderRiftPacket(getId(), position(), getDeltaMovement()), this);
+            if (age % 5 == 0 && !level().isClientSide) {
+                Vec3 delta = getDeltaMovement();
+                PacketDistributor.sendToPlayersTrackingEntity(this, new BidirectionalEnderRiftPayload(getId(), getX(), getY(), getZ(), delta.x(), delta.y(), delta.z()));
+            }
         }
 
         if (age % 2 == 0) {
             entities.addAll(level().getEntities(this, getBoundingBox().inflate(0.3)));
         }
+
+        if (distanceTo(getOwner()) > 300) {
+            System.out.println("far away " + blockPosition());
+        }
+    }
+
+    @Override
+    public void setDeltaMovement(Vec3 pDeltaMovement) {
+        super.setDeltaMovement(pDeltaMovement);
     }
 
     public Vec3 calculateDelta(LivingEntity entity) {
-        Vec3 initialAngle = getEntityData().get(DATA_ANGLE);
-        Vec3 diff = entity.getLookAngle().subtract(initialAngle);
-        diff = diff.scale(0.5);
-        return initialAngle.scale(0.2).add(diff);
+        Vector3f initialAngle = getEntityData().get(DATA_ANGLE);
+        Vec3 diff = entity.getLookAngle().subtract(Util.toVec3(initialAngle)).scale(0.5);
+        return Util.toVec3(initialAngle).scale(0.2).add(diff);
     }
 
     public void teleport() {
@@ -113,8 +124,8 @@ public class EnderRift extends Projectile {
     }
 
     @Override
-    protected void defineSynchedData() {
-        getEntityData().define(DATA_CONTROLLING, true);
-        getEntityData().define(DATA_ANGLE, Vec3.ZERO);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        builder.define(DATA_CONTROLLING, true);
+        builder.define(DATA_ANGLE, new Vector3f());
     }
 }

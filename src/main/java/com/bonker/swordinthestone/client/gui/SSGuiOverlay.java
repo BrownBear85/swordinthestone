@@ -1,11 +1,13 @@
 package com.bonker.swordinthestone.client.gui;
 
+import com.bonker.swordinthestone.SwordInTheStone;
 import com.bonker.swordinthestone.common.block.SSBlocks;
 import com.bonker.swordinthestone.common.block.SwordStoneBlock;
 import com.bonker.swordinthestone.common.block.entity.ISwordStoneBlockEntity;
 import com.bonker.swordinthestone.common.block.entity.SwordStoneMasterBlockEntity;
 import com.bonker.swordinthestone.util.Util;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.LayeredDraw;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -13,15 +15,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.gui.overlay.IGuiOverlay;
 
 public class SSGuiOverlay {
-    public static final String NAME = "swordinthestone_overlay";
+    public static final ResourceLocation NAME = ResourceLocation.fromNamespaceAndPath(SwordInTheStone.MODID, "overlay");
     private static final ResourceLocation TEXTURE = Util.makeResource("textures/gui/overlay.png");
     private static final int BAR_WIDTH = 94;
     private static final int BAR_HEIGHT = 18;
 
-    public static final IGuiOverlay OVERLAY = (gui, guiGraphics, partialTick, screenWidth, screenHeight) -> {
+    public static final LayeredDraw.Layer OVERLAY = (guiGraphics, deltaTracker) -> {
         Minecraft minecraft = Minecraft.getInstance();
 
         if (minecraft.hitResult != null && minecraft.hitResult.getType() == HitResult.Type.BLOCK && minecraft.level != null) {

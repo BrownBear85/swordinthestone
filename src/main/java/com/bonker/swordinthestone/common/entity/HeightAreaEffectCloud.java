@@ -12,6 +12,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import org.joml.Vector3f;
@@ -43,7 +44,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
         cloud.setWaitTime(0);
         cloud.setRadiusPerTick(0);
         cloud.setDuration(60);
-        cloud.setPotion(Potions.STRONG_POISON);
+        cloud.setPotionContents(new PotionContents(Potions.STRONG_POISON));
         cloud.setParticle(TOXIC_DASH_PARTICLE);
         level.addFreshEntity(cloud);
     }
@@ -72,7 +73,7 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                 double yd;
                 double zd;
                 if (particle.getType() == ParticleTypes.ENTITY_EFFECT) {
-                    int color = getColor();
+                    int color = potionContents.getColor();
                     xd = (float)(color >> 16 & 255) / 255.0F;
                     yd = (float)(color >> 8 & 255) / 255.0F;
                     zd = (float)(color & 255) / 255.0F;
@@ -113,11 +114,11 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                 victims.entrySet().removeIf(entry -> tickCount >= entry.getValue());
                 List<MobEffectInstance> effects = Lists.newArrayList();
 
-                for (MobEffectInstance effect : potion.getEffects()) {
+                for (MobEffectInstance effect : potionContents.getAllEffects()) {
                     effects.add(new MobEffectInstance(effect.getEffect(), effect.mapDuration(i -> i / 4), effect.getAmplifier(), effect.isAmbient(), effect.isVisible()));
                 }
 
-                effects.addAll(this.effects);
+                effects.addAll(this.potionContents.customEffects());
                 if (effects.isEmpty()) {
                     victims.clear();
                 } else {
@@ -129,8 +130,8 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
                                 victims.put(entity, tickCount + reapplicationDelay);
 
                                 for (MobEffectInstance effect : effects) {
-                                    if (effect.getEffect().isInstantenous()) {
-                                        effect.getEffect().applyInstantenousEffect(this, getOwner(), entity, effect.getAmplifier(), 0.5D);
+                                    if (effect.getEffect().value().isInstantenous()) {
+                                        effect.getEffect().value().applyInstantenousEffect(this, getOwner(), entity, effect.getAmplifier(), 0.5D);
                                     } else {
                                         entity.addEffect(new MobEffectInstance(effect), this);
                                     }
@@ -194,9 +195,9 @@ public class HeightAreaEffectCloud extends AreaEffectCloud {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        getEntityData().define(DATA_HEIGHT, 0.5F);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_HEIGHT, 0.5F);
     }
 
     @Override

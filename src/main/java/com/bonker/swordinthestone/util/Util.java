@@ -3,12 +3,11 @@ package com.bonker.swordinthestone.util;
 import com.bonker.swordinthestone.SwordInTheStone;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Streams;
+import com.mojang.datafixers.util.Function7;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.syncher.EntityDataSerializer;
-import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -20,25 +19,58 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class Util {
-    public static final EntityDataSerializer<Vec3> VEC3 = EntityDataSerializer.simple(Util::writeVec3, Util::readVec3);
-
-    static {
-        EntityDataSerializers.registerSerializer(VEC3);
+    public static Vec3 toVec3(Vector3f vector3f) {
+        return new Vec3(vector3f.x(), vector3f.y(), vector3f.z());
     }
 
-    public static void writeVec3(FriendlyByteBuf buf, Vec3 vec3) {
-        buf.writeDouble(vec3.x());
-        buf.writeDouble(vec3.y());
-        buf.writeDouble(vec3.z());
-    }
+    public static <B, C, T1, T2, T3, T4, T5, T6, T7> StreamCodec<B, C> streamCodec7(
+            final StreamCodec<? super B, T1> pCodec1,
+            final Function<C, T1> pGetter1,
+            final StreamCodec<? super B, T2> pCodec2,
+            final Function<C, T2> pGetter2,
+            final StreamCodec<? super B, T3> pCodec3,
+            final Function<C, T3> pGetter3,
+            final StreamCodec<? super B, T4> pCodec4,
+            final Function<C, T4> pGetter4,
+            final StreamCodec<? super B, T5> pCodec5,
+            final Function<C, T5> pGetter5,
+            final StreamCodec<? super B, T6> pCodec6,
+            final Function<C, T6> pGetter6,
+            final StreamCodec<? super B, T7> pCodec7,
+            final Function<C, T7> pGetter7,
+            final Function7<T1, T2, T3, T4, T5, T6, T7, C> pFactory
+    ) {
+        return new StreamCodec<B, C>() {
+            @Override
+            public C decode(B p_330310_) {
+                T1 t1 = pCodec1.decode(p_330310_);
+                T2 t2 = pCodec2.decode(p_330310_);
+                T3 t3 = pCodec3.decode(p_330310_);
+                T4 t4 = pCodec4.decode(p_330310_);
+                T5 t5 = pCodec5.decode(p_330310_);
+                T6 t6 = pCodec6.decode(p_330310_);
+                T7 t7 = pCodec7.decode(p_330310_);
+                return pFactory.apply(t1, t2, t3, t4, t5, t6, t7);
+            }
 
-    public static Vec3 readVec3(FriendlyByteBuf buf) {
-        return new Vec3(buf.readDouble(), buf.readDouble(), buf.readDouble());
+            @Override
+            public void encode(B p_332052_, C p_331912_) {
+                pCodec1.encode(p_332052_, pGetter1.apply(p_331912_));
+                pCodec2.encode(p_332052_, pGetter2.apply(p_331912_));
+                pCodec3.encode(p_332052_, pGetter3.apply(p_331912_));
+                pCodec4.encode(p_332052_, pGetter4.apply(p_331912_));
+                pCodec5.encode(p_332052_, pGetter5.apply(p_331912_));
+                pCodec6.encode(p_332052_, pGetter6.apply(p_331912_));
+                pCodec7.encode(p_332052_, pGetter7.apply(p_331912_));
+            }
+        };
     }
 
     public static Vec3 relativeVec(Vec2 rotation, double forwards, double up, double left) {
@@ -88,7 +120,7 @@ public class Util {
     }
     
     public static ResourceLocation makeResource(String path) {
-        return new ResourceLocation(SwordInTheStone.MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(SwordInTheStone.MODID, path);
     }
     
     public static <T> TagKey<T> makeTag(ResourceKey<Registry<T>> registryKey, String path) {

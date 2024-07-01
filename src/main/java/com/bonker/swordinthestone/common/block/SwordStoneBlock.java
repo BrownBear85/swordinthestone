@@ -4,9 +4,9 @@ import com.bonker.swordinthestone.common.block.entity.ISwordStoneBlockEntity;
 import com.bonker.swordinthestone.common.block.entity.SSBlockEntities;
 import com.bonker.swordinthestone.common.block.entity.SwordStoneDummyBlockEntity;
 import com.bonker.swordinthestone.common.block.entity.SwordStoneMasterBlockEntity;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.StringRepresentable;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
@@ -54,14 +54,19 @@ public class SwordStoneBlock extends BaseEntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
-        return interact(pLevel, pPos, pPlayer, pHand);
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return simpleCodec(SwordStoneBlock::new);
     }
 
-    private InteractionResult interact(Level level, BlockPos pos, Player player, InteractionHand usedHand) {
+    @Override
+    protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+        return interact(pLevel, pPos, pPlayer);
+    }
+
+    private InteractionResult interact(Level level, BlockPos pos, Player player) {
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof ISwordStoneBlockEntity) {
-            return ((ISwordStoneBlockEntity) entity).interact(player, usedHand);
+            return ((ISwordStoneBlockEntity) entity).interact(player);
         } else {
             return InteractionResult.PASS;
         }

@@ -2,6 +2,8 @@ package com.bonker.swordinthestone.server.worldgen;
 
 import com.bonker.swordinthestone.common.SSConfig;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadStructurePlacement;
@@ -10,11 +12,11 @@ import net.minecraft.world.level.levelgen.structure.placement.RandomSpreadType;
 import java.util.function.Supplier;
 
 public class SwordStonePlacement extends RandomSpreadStructurePlacement {
-    public static final Codec<SwordStonePlacement> CODEC = RecordCodecBuilder.create(inst -> inst.group(
+    public static final MapCodec<SwordStonePlacement> CODEC = RecordCodecBuilder.<SwordStonePlacement>mapCodec(inst -> inst.group(
             RandomSpreadType.CODEC.optionalFieldOf("spread_type", RandomSpreadType.LINEAR).forGetter(RandomSpreadStructurePlacement::spreadType),
             Codec.INT.fieldOf("salt").forGetter(p -> p.salt()),
             SwordStoneType.CODEC.fieldOf("sword_stone_type").forGetter(p -> p.swordStoneType)
-    ).apply(inst, SwordStonePlacement::new));
+    ).apply(inst, SwordStonePlacement::new)).validate(DataResult::success);
 
     private final SwordStoneType swordStoneType;
 

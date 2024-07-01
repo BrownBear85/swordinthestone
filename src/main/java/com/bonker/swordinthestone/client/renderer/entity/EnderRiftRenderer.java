@@ -35,19 +35,19 @@ public class EnderRiftRenderer extends EntityRenderer<EnderRift> {
         poseStack.mulPose(entityRenderDispatcher.cameraOrientation());
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F));
         PoseStack.Pose stackPose = poseStack.last();
-        Matrix4f pose = stackPose.pose();
+        Matrix4f matrix4f = stackPose.pose();
         Matrix3f normal = stackPose.normal();
         VertexConsumer consumer = buffer.getBuffer(RENDER_TYPE);
-        vertex(consumer, pose, normal, packedLight, 0.0F, 0, 0, 1);
-        vertex(consumer, pose, normal, packedLight, 1.0F, 0, 1, 1);
-        vertex(consumer, pose, normal, packedLight, 1.0F, 1, 1, 0);
-        vertex(consumer, pose, normal, packedLight, 0.0F, 1, 0, 0);
+        vertex(consumer, matrix4f, stackPose, packedLight, 0.0F, 0, 0, 1);
+        vertex(consumer, matrix4f, stackPose, packedLight, 1.0F, 0, 1, 1);
+        vertex(consumer, matrix4f, stackPose, packedLight, 1.0F, 1, 1, 0);
+        vertex(consumer, matrix4f, stackPose, packedLight, 0.0F, 1, 0, 0);
         poseStack.popPose();
         super.render(entity, yaw, partialTick, poseStack, buffer, packedLight);
     }
 
-    private static void vertex(VertexConsumer consumer, Matrix4f matrix4f, Matrix3f matrix3f, int lightMapUV, float x, int y, int u, int v) {
-        consumer.vertex(matrix4f, x - 0.5F, (float)y - 0.25F, 0.0F).color(255, 255, 255, 255).uv((float)u, (float)v).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(lightMapUV).normal(matrix3f, 0.0F, 1.0F, 0.0F).endVertex();
+    private static void vertex(VertexConsumer consumer, Matrix4f matrix4f, PoseStack.Pose pose, int lightMapUV, float x, int y, int u, int v) {
+        consumer.addVertex(matrix4f, x - 0.5F, (float)y - 0.25F, 0.0F).setColor(255, 255, 255, 255).setUv((float)u, (float)v).setOverlay(OverlayTexture.NO_OVERLAY).setLight(lightMapUV).setNormal(pose, 0.0F, 1.0F, 0.0F);
     }
 
     @Override

@@ -5,31 +5,33 @@ import com.bonker.swordinthestone.common.SSSounds;
 import com.bonker.swordinthestone.common.block.SSBlocks;
 import com.bonker.swordinthestone.common.block.SwordStoneBlock;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
-import com.bonker.swordinthestone.common.networking.ClientboundSyncSwordStoneDataPacket;
-import com.bonker.swordinthestone.common.networking.ClientboundSyncSwordStoneItemPacket;
-import com.bonker.swordinthestone.common.networking.SSNetworking;
+import com.bonker.swordinthestone.common.networking.payloads.Play2ClientSwordStoneDataPayload;
+import com.bonker.swordinthestone.common.networking.payloads.Play2ClientSwordStoneItemPayload;
 import com.bonker.swordinthestone.util.AbilityUtil;
 import com.bonker.swordinthestone.util.Color;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 
@@ -68,7 +70,7 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
     }
 
     @Override
-    public InteractionResult interact(Player pPlayer, InteractionHand pHand) {
+    public InteractionResult interact(Player pPlayer) {
         assert level != null;
 
         if (cannotInteract() || ticksSinceLastInteraction <= SHAKE_ANIMATION_TIME) return InteractionResult.PASS;
@@ -83,7 +85,7 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
         level.playSound(pPlayer, getBlockPos(), SSSounds.ROCK.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
 
         if (!level.isClientSide) {
-            SSNetworking.sendToClientsLoadingBE(new ClientboundSyncSwordStoneDataPacket(getBlockPos(), true, progress), this);
+            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(getBlockPos()), new Play2ClientSwordStoneDataPayload(getBlockPos(), true, progress));
         }
 
         Vec3 position = new Vec3(getBlockPos().getX() + centerXOffset(), getBlockPos().getY() + 1, getBlockPos().getZ() + centerZOffset());
@@ -149,7 +151,7 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
                     if (entity.idleTicks >= BEACON_ANIMATION_CYCLE) {
                         entity.idleTicks = 0;
 
-                        SSNetworking.sendToClientsLoadingBE(new ClientboundSyncSwordStoneDataPacket(blockPos, false, (short) 0), entity);
+                        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) level, new ChunkPos(entity.getBlockPos()), new Play2ClientSwordStoneDataPayload(blockPos, false, (short) 0));
                     }
                 } else if (entity.idleTicks == 75) {
                     level.playLocalSound(entity.getBlockPos(), SSSounds.LASER.get(), SoundSource.BLOCKS, 4.5F, 0.6F + level.random.nextFloat() * 0.8F, false);
@@ -182,7 +184,7 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
     }
 
     private static void sendSyncPacket(SwordStoneMasterBlockEntity entity) {
-        SSNetworking.sendToClientsLoadingBE(new ClientboundSyncSwordStoneItemPacket(entity.getBlockPos(), entity.stack), entity);
+        PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) entity.level, new ChunkPos(entity.getBlockPos()), new Play2ClientSwordStoneItemPayload(entity.getBlockPos(), entity.stack));
     }
 
     public void setItem(ItemStack stack) {
@@ -202,12 +204,12 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
         return stack.copy();
     }
 
-    public float[] getBeamColor() {
+    public int getBeamColor() {
         if (stack.getItem() instanceof UniqueSwordItem uniqueSwordItem) {
             Color color = UniqueSwordItem.COLOR_TABLE.get(uniqueSwordItem, AbilityUtil.getSwordAbility(stack));
-            if (color != null) return color.getDiffusedColor();
+            if (color != null) return color.getValue();
         }
-        return AbilityUtil.getSwordAbility(stack).getDiffusedColor();
+        return AbilityUtil.getSwordAbility(stack).getColor().getValue();
     }
 
     public Direction getDirection() {
@@ -230,27 +232,33 @@ public class SwordStoneMasterBlockEntity extends BlockEntity implements ISwordSt
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
-        stack = ItemStack.of(pTag.getCompound(ITEM_TAG));
+    protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(pTag, pRegistries);
+        if (!pTag.contains(ITEM_TAG)) {
+            stack = ItemStack.EMPTY;
+        } else {
+            stack = ItemStack.parse(pRegistries, pTag.getCompound(ITEM_TAG)).orElse(ItemStack.EMPTY);
+        }
         hasSword = !stack.isEmpty();
         variant = pTag.getString(VARIANT_TAG);
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
-        pTag.put(ITEM_TAG, stack.serializeNBT());
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(pTag, pRegistries);
+        if (!stack.isEmpty()) {
+            pTag.put(ITEM_TAG, stack.save(pRegistries));
+        }
         pTag.putString(VARIANT_TAG, variant);
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-       return saveWithoutMetadata();
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        return saveWithoutMetadata(pRegistries);
     }
 
-    @Override
-    public AABB getRenderBoundingBox() {
-        return renderBox;
-    }
+//    @Override
+//    public AABB getRenderBoundingBox() {
+//        return renderBox;
+//    }
 }

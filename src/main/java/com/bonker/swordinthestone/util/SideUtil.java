@@ -1,18 +1,20 @@
 package com.bonker.swordinthestone.util;
 
 import com.bonker.swordinthestone.common.entity.EnderRift;
-import com.bonker.swordinthestone.common.networking.SSNetworking;
-import com.bonker.swordinthestone.common.networking.ServerboundEnderRiftPacket;
+import com.bonker.swordinthestone.common.networking.payloads.BidirectionalEnderRiftPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SideUtil {
     public static void controlEnderRift(EnderRift enderRift, Player player) {
         if (player != Minecraft.getInstance().player) return;
 
         enderRift.setDeltaMovement(enderRift.calculateDelta(player));
-        SSNetworking.sendToServer(new ServerboundEnderRiftPacket(enderRift.getId(), enderRift.position(), enderRift.getDeltaMovement()));
+        Vec3 delta = enderRift.getDeltaMovement();
+        PacketDistributor.sendToServer(new BidirectionalEnderRiftPayload(enderRift.getId(), enderRift.getX(), enderRift.getY(), enderRift.getZ(), delta.x(), delta.y(), delta.z()));
 
         enderRift.move(MoverType.SELF, enderRift.getDeltaMovement());
     }

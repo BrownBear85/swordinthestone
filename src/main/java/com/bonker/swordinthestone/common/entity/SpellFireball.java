@@ -12,11 +12,12 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -47,7 +48,7 @@ public class SpellFireball extends Fireball {
 
         if (!beenShot && owner != null) {
             Vec3 pos = owner.getEyePosition().add(owner.getLookAngle().scale(1.5));
-            lerpTo(pos.x(), pos.y() - 0.5, pos.z(), getXRot(), getYRot(), 6, false);
+            lerpTo(pos.x(), pos.y() - 0.5, pos.z(), getXRot(), getYRot(), 6);
         }
 
         float maxPower = SSConfig.FIREBALL_MAX_POWER.get().floatValue();
@@ -63,10 +64,7 @@ public class SpellFireball extends Fireball {
 
         if (!beenShot && getEntityData().get(DATA_SHOT)) {
             playSound(SoundEvents.FIRECHARGE_USE, 1.0F, 1.0F);
-            Vec3 vec = (owner == null ? this : owner).getLookAngle().scale(0.2);
-            xPower = vec.x;
-            yPower = vec.y;
-            zPower = vec.z;
+            setDeltaMovement((owner == null ? this : owner).getLookAngle().scale(0.2));
         }
 
         if (!beenShot && ticks++ % 37 == 0) {
@@ -106,10 +104,9 @@ public class SpellFireball extends Fireball {
                 return;
             }
             Entity owner = getOwner();
-            entity.hurt(damageSources().fireball(this, owner), 6.0F * getPower());
-            if (owner instanceof LivingEntity) {
-                doEnchantDamageEffects((LivingEntity) owner, entity);
-            }
+            DamageSource dmgSource = damageSources().fireball(this, owner);
+            entity.hurt(dmgSource, 6.0F * getPower());
+            EnchantmentHelper.doPostAttackEffects((ServerLevel) level(), entity, dmgSource);
         }
     }
 
@@ -143,9 +140,9 @@ public class SpellFireball extends Fireball {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        getEntityData().define(DATA_EXPLOSION_POWER, 1.0F);
-        getEntityData().define(DATA_SHOT, false);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_EXPLOSION_POWER, 1.0F);
+        builder.define(DATA_SHOT, false);
     }
 }

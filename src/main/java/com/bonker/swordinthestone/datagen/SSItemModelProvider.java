@@ -3,23 +3,22 @@ package com.bonker.swordinthestone.datagen;
 import com.bonker.swordinthestone.common.item.SSItems;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
 import com.bonker.swordinthestone.util.Util;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraftforge.client.model.generators.ItemModelBuilder;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.common.data.LanguageProvider;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.common.data.LanguageProvider;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-@SuppressWarnings("unused")
 public class SSItemModelProvider extends ItemModelProvider {
     private final LanguageProvider languageProvider;
     private final AnimatedTextureProvider animatedTextureProvider;
@@ -73,16 +72,11 @@ public class SSItemModelProvider extends ItemModelProvider {
         basicItem(item);
     }
 
-    public void handheld(Item item, String name) {
-        languageProvider.add(item, name);
-        childOf(item, "item/handheld");
-    }
-
     public void childOf(Item item, String parent) {
-        ResourceLocation loc = Objects.requireNonNull(ForgeRegistries.ITEMS.getKey(item));
+        ResourceLocation loc = Objects.requireNonNull(BuiltInRegistries.ITEM.getKey(item));
         getBuilder(loc.toString())
                 .parent(new ModelFile.UncheckedModelFile(parent))
-                .texture("layer0", new ResourceLocation(loc.getNamespace(), "item/" + loc.getPath()));
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), "item/" + loc.getPath()));
     }
 
     public void abilityOverlay(String id, int frametime, @Nullable int[] frames) {
@@ -90,7 +84,7 @@ public class SSItemModelProvider extends ItemModelProvider {
         ResourceLocation loc = Util.makeResource("item/ability/" + id);
         getBuilder(loc.toString())
                 .parent(new ModelFile.UncheckedModelFile("swordinthestone:item/unique_sword"))
-                .texture("layer0", new ResourceLocation(loc.getNamespace(), loc.getPath()));
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), loc.getPath()));
     }
 
     public void uniqueSwordVariant(UniqueSwordItem item, String id, String name) {
@@ -98,20 +92,20 @@ public class SSItemModelProvider extends ItemModelProvider {
         ResourceLocation loc = Util.makeResource("item/sword/" + id);
         getBuilder(loc.toString())
                 .parent(new ModelFile.UncheckedModelFile("swordinthestone:item/unique_sword"))
-                .texture("layer0", new ResourceLocation(loc.getNamespace(), "item/" + id));
+                .texture("layer0", ResourceLocation.fromNamespaceAndPath(loc.getNamespace(), "item/" + id));
         childOf(item, "builtin/entity");
     }
 
     public void swordStoneVariant(Block block) {
-        ResourceLocation key = Objects.requireNonNull(ForgeRegistries.BLOCKS.getKey(block));
+        ResourceLocation key = Objects.requireNonNull(BuiltInRegistries.BLOCK.getKey(block));
         swordStoneVariant(key.getPath(), key.getPath());
     }
 
     public void swordStoneVariant(String name, String blockTexture) {
         ResourceLocation loc = Util.makeResource(name);
         ItemModelBuilder builder = getBuilder("swordinthestone:block/sword_stone_" + loc.getPath())
-                .parent(new ModelFile.ExistingModelFile(new ResourceLocation("swordinthestone", "block/sword_stone"), existingFileHelper));
-        ResourceLocation texture = new ResourceLocation("block/" + blockTexture);
+                .parent(new ModelFile.ExistingModelFile(ResourceLocation.fromNamespaceAndPath("swordinthestone", "block/sword_stone"), existingFileHelper));
+        ResourceLocation texture = ResourceLocation.parse("block/" + blockTexture);
         builder.texture("0", texture).texture("particle", texture);
         blockStateProvider.swordStoneVariants.put(loc.getPath(), new ModelFile.ExistingModelFile(builder.getLocation(), existingFileHelper));
     }

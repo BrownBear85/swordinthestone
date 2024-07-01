@@ -1,7 +1,6 @@
 package com.bonker.swordinthestone.common.ability;
 
 import com.bonker.swordinthestone.util.Color;
-import com.google.common.collect.ImmutableMultimap;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -9,12 +8,13 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attribute;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
+
+import java.util.Objects;
 
 public abstract class SwordAbility {
     public static final SwordAbility NONE = new SwordAbility(0x000000) {};
@@ -62,12 +62,11 @@ public abstract class SwordAbility {
 
     public UseAnim getUseAnimation(ItemStack stack) {return UseAnim.NONE;}
 
-    public void addAttributes(ImmutableMultimap.Builder<Attribute, AttributeModifier> builder) {}
+    public void addAttributes(ItemAttributeModifiers.Builder builder) {}
 
     public String getNameKey() {
         if (nameKey == null) {
-            ResourceLocation loc = SwordAbilities.SWORD_ABILITY_REGISTRY.get().getKey(this);
-            if (loc == null) loc = new ResourceLocation("null");
+            ResourceLocation loc = Objects.requireNonNull(SwordAbilities.SWORD_ABILITY_REGISTRY.getKey(this));
             nameKey = "ability." + loc.getNamespace() + "." + loc.getPath();
         }
         return nameKey;
