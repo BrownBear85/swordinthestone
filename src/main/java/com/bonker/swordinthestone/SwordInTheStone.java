@@ -18,7 +18,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.loading.FMLPaths;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +32,7 @@ public class SwordInTheStone {
 
     public SwordInTheStone(IEventBus bus, ModContainer container) {
         container.registerConfig(ModConfig.Type.COMMON, SSConfig.COMMON_CONFIG);
-        SSConfig.load(FMLPaths.CONFIGDIR.get().resolve(SwordInTheStone.MODID + "-common.toml"));
+        container.registerConfig(ModConfig.Type.STARTUP, SSConfig.STARTUP_CONFIG);
 
         SwordAbilities.SWORD_ABILITIES.register(bus);
         SSBlocks.BLOCKS.register(bus);

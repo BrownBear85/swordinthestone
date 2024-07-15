@@ -3,8 +3,6 @@ package com.bonker.swordinthestone.common;
 import com.bonker.swordinthestone.SwordInTheStone;
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.bonker.swordinthestone.common.item.UniqueSwordItem;
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.io.WritingMode;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -12,7 +10,6 @@ import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +17,8 @@ import java.util.List;
 public class SSConfig {
     private static final ModConfigSpec.Builder COMMON_BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec COMMON_CONFIG;
+    private static final ModConfigSpec.Builder STARTUP_BUILDER = new ModConfigSpec.Builder();
+    public static final ModConfigSpec STARTUP_CONFIG;
 
     // sword stats
     public static final ModConfigSpec.IntValue BASE_DAMAGE;
@@ -63,33 +62,33 @@ public class SSConfig {
 
     static {
         // sword stats
-        COMMON_BUILDER.comment("Sword Stats").push("stats");
+        STARTUP_BUILDER.comment("Sword Stats").push("stats");
 
-        BASE_DAMAGE = COMMON_BUILDER
+        BASE_DAMAGE = STARTUP_BUILDER
                 .comment("The base damage of a sword from this mod." +
                         "\nThe weakest sword possible will have this for its attack damage.")
                 .translation("swordinthestone.configgui.baseDamage")
                 .defineInRange("baseDamage", 6, 1, 100);
 
-        MAX_DAMAGE_MODIFIER = COMMON_BUILDER
+        MAX_DAMAGE_MODIFIER = STARTUP_BUILDER
                 .comment("The amount that swords' attack damages can vary randomly." +
                         "\nThe strongest sword possible will have this added to baseDamage for its attack damage.")
                 .translation("swordinthestone.configgui.maxDamageModifier")
                 .defineInRange("maxDamageModifier", 2.5, 0.0, 50.0);
 
-        BASE_SPEED = COMMON_BUILDER
+        BASE_SPEED = STARTUP_BUILDER
                 .comment("The base attack speed of a sword from this mod." +
                         "\nThe slowest sword possible will have this for its attack damage.")
                 .translation("swordinthestone.configgui.baseAttackSpeed")
                 .defineInRange("baseAttackSpeed", 1.2, 0.0, 2.0);
 
-        MAX_SPEED_MODIFIER = COMMON_BUILDER
+        MAX_SPEED_MODIFIER = STARTUP_BUILDER
                 .comment("The amount that swords' attack speeds can vary randomly." +
                         "\nThe fastest sword possible will have this added to baseAttackSpeed for its attack speed.")
                 .translation("swordinthestone.configgui.maxAttackSpeedModifier")
                 .defineInRange("maxAttackSpeedModifier", 0.6, 0.0, 1.0);
 
-        DURABILITY = COMMON_BUILDER
+        DURABILITY = STARTUP_BUILDER
                 .comment("""
                         The durability of swords from this mod.\
                         A value of 0 will cause swords from this mod to be unbreakable.\
@@ -97,8 +96,10 @@ public class SSConfig {
                 .translation("swordinthestone.configgui.durability")
                 .defineInRange("durability", 2000, 0, 10000);
 
+        STARTUP_CONFIG = STARTUP_BUILDER.build();
+
         // sword stone
-        COMMON_BUILDER.pop().comment("Sword Stone Settings").push("sword_stone");
+        COMMON_BUILDER.comment("Sword Stone Settings").push("sword_stone");
 
         SWORD_BEACON_ENABLED = COMMON_BUILDER
                 .comment("Whether sword stones should show a beacon beam every so often to alert players to their location.")
@@ -259,12 +260,6 @@ public class SSConfig {
         return obj instanceof String str &&
                 ResourceLocation.read(str).isSuccess() &&
                 SwordAbilities.SWORD_ABILITY_REGISTRY.containsKey(ResourceLocation.parse(str));
-    }
-
-    public static void load(Path path) {
-        CommentedFileConfig configData = CommentedFileConfig.builder(path).sync().autosave().writingMode(WritingMode.REPLACE).build();
-        configData.load();
-        COMMON_CONFIG.setConfig(configData);
     }
 
     public static void updateConfig(final ModConfigEvent event) {
