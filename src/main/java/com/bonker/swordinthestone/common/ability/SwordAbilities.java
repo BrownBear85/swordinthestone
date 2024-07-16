@@ -1,6 +1,7 @@
 package com.bonker.swordinthestone.common.ability;
 
 import com.bonker.swordinthestone.SwordInTheStone;
+import com.bonker.swordinthestone.SwordInTheStoneClient;
 import com.bonker.swordinthestone.client.particle.SSParticles;
 import com.bonker.swordinthestone.common.SSAttributes;
 import com.bonker.swordinthestone.common.SSConfig;
@@ -13,7 +14,6 @@ import com.bonker.swordinthestone.server.attachment.SSAttachments;
 import com.bonker.swordinthestone.util.AbilityUtil;
 import com.bonker.swordinthestone.util.SideUtil;
 import com.bonker.swordinthestone.util.Util;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -43,6 +43,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -418,7 +419,9 @@ public class SwordAbilities {
                     .build());
 
     private static DeferredHolder<SwordAbility, SwordAbility> register(String name, Supplier<SwordAbility> supplier) {
-        SwordInTheStone.ABILITY_MODEL_MAP.put(SwordInTheStone.MODID + ":" + name, ModelResourceLocation.standalone(Util.makeResource("item/ability/" + name)));
+        if (FMLEnvironment.dist.isClient()) {
+            SwordInTheStoneClient.addAbility(name);
+        }
         return SWORD_ABILITIES.register(name, supplier);
     }
 }

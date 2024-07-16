@@ -1,6 +1,6 @@
 package com.bonker.swordinthestone.client.renderer;
 
-import com.bonker.swordinthestone.SwordInTheStone;
+import com.bonker.swordinthestone.SwordInTheStoneClient;
 import com.bonker.swordinthestone.common.item.SSDataComponents;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -35,8 +35,8 @@ public class SSBEWLR extends BlockEntityWithoutLevelRenderer {
 
     @Override
     public void renderByItem(ItemStack pStack, ItemDisplayContext pDisplayContext, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight, int pPackedOverlay) {
-        ModelResourceLocation swordModel = SwordInTheStone.SWORD_MODEL_MAP.get(BuiltInRegistries.ITEM.getKey(pStack.getItem()));
-        ModelResourceLocation abilityModel = SwordInTheStone.ABILITY_MODEL_MAP.get(pStack.get(SSDataComponents.ABILITY_COMPONENT));
+        ModelResourceLocation swordModel = SwordInTheStoneClient.SWORD_MODEL_MAP.get(BuiltInRegistries.ITEM.getKey(pStack.getItem()));
+        ModelResourceLocation abilityModel = SwordInTheStoneClient.ABILITY_MODEL_MAP.get(pStack.get(SSDataComponents.ABILITY_COMPONENT));
 
         pPoseStack.popPose(); // remove translations from ItemRenderer
         pPoseStack.pushPose();

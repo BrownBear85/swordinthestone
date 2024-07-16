@@ -1,18 +1,19 @@
 package com.bonker.swordinthestone.common.item;
 
 import com.bonker.swordinthestone.SwordInTheStone;
+import com.bonker.swordinthestone.SwordInTheStoneClient;
 import com.bonker.swordinthestone.common.SSConfig;
 import com.bonker.swordinthestone.common.ability.SwordAbilities;
 import com.bonker.swordinthestone.common.ability.SwordAbility;
 import com.bonker.swordinthestone.util.AbilityUtil;
 import com.bonker.swordinthestone.util.Util;
-import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -49,7 +50,9 @@ public class SSItems {
             .build());
 
     private static DeferredItem<UniqueSwordItem> swordVariant(String name, int color) {
-        SwordInTheStone.SWORD_MODEL_MAP.put(Util.makeResource(name), ModelResourceLocation.standalone(Util.makeResource("item/sword/" + name)));
+        if (FMLEnvironment.dist.isClient()) {
+            SwordInTheStoneClient.addSword(name);
+        }
         return ITEMS.register(name, () -> new UniqueSwordItem(color, new Item.Properties()));
     }
 }
