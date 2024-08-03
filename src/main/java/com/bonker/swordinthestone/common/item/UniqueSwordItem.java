@@ -117,12 +117,14 @@ public class UniqueSwordItem extends SwordItem {
                 ability.kill(serverLevel, pAttacker, pTarget);
             }
         }
-
-        if (getTier().getUses() > 0) {
-            return super.hurtEnemy(pStack, pTarget, pAttacker);
-        }
-
         return true;
+    }
+
+    @Override
+    public void postHurtEnemy(ItemStack pStack, LivingEntity pTarget, LivingEntity pAttacker) {
+        if (getTier().getUses() > 0) {
+            super.postHurtEnemy(pStack, pTarget, pAttacker);
+        }
     }
 
     @Override
